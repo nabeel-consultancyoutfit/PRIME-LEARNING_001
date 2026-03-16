@@ -4,7 +4,7 @@
 
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
-import PersonCheckIcon from '@mui/icons-material/PersonCheck';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 export const STAT_CARD_CONFIG = [
@@ -22,7 +22,7 @@ export const STAT_CARD_CONFIG = [
   },
   {
     id: 'activeEnrollments',
-    icon: PersonCheckIcon,
+    icon: CheckCircleIcon,
     label: 'Active Enrollments',
     color: '#F57C00',
   },

@@ -1,179 +1,76 @@
 /**
- * API client using fetch with interceptors pattern
+ * Mock API client for frontend-only development.
+ * No real HTTP requests are made.
  */
 
-import { ApiError } from '@/types/common';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.example.com/v1';
+type MockHandler = (endpoint: string, data?: any) => Promise<any>;
 
-/**
- * Type guard to check if an error is an ApiError
- */
-export const isApiError = (error: unknown): error is ApiError => {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    'statusCode' in error
-  );
-};
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * Create an API error from a response
- */
-const createApiError = async (response: Response): Promise<ApiError> => {
-  let data: any;
-  try {
-    data = await response.json();
-  } catch {
-    data = {};
-  }
-
-  return {
-    message: data.message || response.statusText || 'An error occurred',
-    statusCode: response.status,
-    errors: data.errors,
-  };
-};
-
-/**
- * Get auth token from localStorage
- */
-const getAuthToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('accessToken');
-};
-
-/**
- * Request interceptor
- */
-const buildHeaders = (): HeadersInit => {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-
-  const token = getAuthToken();
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  return headers;
-};
-
-/**
- * Generic API client class
- */
-class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string = API_BASE_URL) {
-    this.baseUrl = baseUrl;
-  }
-
-  /**
-   * Make a request
-   */
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const headers = buildHeaders();
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...headers,
-          ...(options.headers as HeadersInit),
-        },
-      });
-
-      if (!response.ok) {
-        throw await createApiError(response);
-      }
-
-      // Handle 204 No Content
-      if (response.status === 204) {
-        return {} as T;
-      }
-
-      return await response.json();
-    } catch (error) {
-      if (isApiError(error)) {
-        throw error;
-      }
-      throw {
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        statusCode: 500,
-      } as ApiError;
+const handlers: Partial<Record<HttpMethod, MockHandler>> = {
+  POST: async (endpoint, data) => {
+    await delay(300);
+    // Default auth-style mock; individual services can interpret shape as needed.
+    return {
+      accessToken: 'mock-access-token',
+      refreshToken: 'mock-refresh-token',
+      user: {
+        id: 'mock-user-id',
+        name: 'Mock User',
+        email: (data && data.email) || 'mock@example.com',
+      },
+    };
+  },
+  GET: async (endpoint) => {
+    await delay(300);
+    // Basic mock "me" response plus generic list placeholder.
+    if (endpoint.includes('/auth/me')) {
+      return {
+        id: 'mock-user-id',
+        name: 'Mock User',
+        email: 'mock@example.com',
+        role: 'admin',
+      };
     }
-  }
+    return [];
+  },
+};
 
-  /**
-   * GET request
-   */
-  async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'GET',
-    });
-  }
-
-  /**
-   * POST request
-   */
-  async post<T>(
+class MockApiClient {
+  private async handle<T>(
+    method: HttpMethod,
     endpoint: string,
     data?: any,
-    options?: RequestInit
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
-    });
+    const handler = handlers[method];
+    if (!handler) {
+      await delay(100);
+      return {} as T;
+    }
+    return (await handler(endpoint, data)) as T;
   }
 
-  /**
-   * PUT request
-   */
-  async put<T>(
-    endpoint: string,
-    data?: any,
-    options?: RequestInit
-  ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
-    });
+  get<T>(endpoint: string): Promise<T> {
+    return this.handle<T>('GET', endpoint);
   }
 
-  /**
-   * PATCH request
-   */
-  async patch<T>(
-    endpoint: string,
-    data?: any,
-    options?: RequestInit
-  ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
-    });
+  post<T>(endpoint: string, data?: any): Promise<T> {
+    return this.handle<T>('POST', endpoint, data);
   }
 
-  /**
-   * DELETE request
-   */
-  async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'DELETE',
-    });
+  put<T>(endpoint: string, data?: any): Promise<T> {
+    return this.handle<T>('PUT', endpoint, data);
+  }
+
+  patch<T>(endpoint: string, data?: any): Promise<T> {
+    return this.handle<T>('PATCH', endpoint, data);
+  }
+
+  delete<T>(endpoint: string): Promise<T> {
+    return this.handle<T>('DELETE', endpoint);
   }
 }
 
-export const apiClient = new ApiClient();
+export const apiClient = new MockApiClient();

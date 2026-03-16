@@ -47,11 +47,21 @@ export const useDashboard = (): UseDashboardReturn => {
   }, [dispatch]);
 
   useEffect(() => {
+    const courseList = Array.isArray(courses) ? courses : [];
+
     // Calculate stats from courses
-    const totalCourses = pagination.total;
-    const totalStudents = courses.reduce((sum, course) => sum + course.enrolledCount, 0);
-    const activeEnrollments = courses.filter((c) => c.status === 'published').length;
-    const totalRevenue = courses.reduce((sum, course) => sum + (course.price * course.enrolledCount), 0);
+    const totalCourses = pagination?.total ?? 0;
+    const totalStudents = courseList.reduce(
+      (sum, course) => sum + (course.enrolledCount ?? 0),
+      0,
+    );
+    const activeEnrollments = courseList.filter(
+      (c) => c.status === 'published',
+    ).length;
+    const totalRevenue = courseList.reduce(
+      (sum, course) => sum + (course.price ?? 0) * (course.enrolledCount ?? 0),
+      0,
+    );
 
     setStats({
       totalCourses,
@@ -61,7 +71,7 @@ export const useDashboard = (): UseDashboardReturn => {
     });
 
     // Map recent courses
-    const recent = courses.slice(0, 5).map((course) => ({
+    const recent = courseList.slice(0, 5).map((course) => ({
       id: course.id,
       title: course.title,
       instructor: course.instructorId,

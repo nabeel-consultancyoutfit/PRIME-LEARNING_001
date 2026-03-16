@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { ThemeRegistry } from '@/theme';
 import MainLayout from '@/layout/MainLayout';
 import AuthLayout from '@/layout/AuthLayout';
-import store from '@/store'; // Assuming you have a Redux store configured
+import { store } from '@/redux/store';
 
 interface PageWithLayout {
   getLayout?: (page: ReactNode) => ReactNode;

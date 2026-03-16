@@ -13,13 +13,13 @@ const clientSideCache = createEmotionCache();
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#2563EB', // Professional education blue
+      main: '#2563EB',
       light: '#60A5FA',
       dark: '#1E40AF',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#14B8A6', // Teal accent
+      main: '#14B8A6',
       light: '#2DD4BF',
       dark: '#0D9488',
       contrastText: '#FFFFFF',
@@ -132,14 +132,16 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          boxShadow:
+            '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          boxShadow:
+            '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         },
       },
     },
