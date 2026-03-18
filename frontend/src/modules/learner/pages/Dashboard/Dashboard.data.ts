@@ -65,8 +65,8 @@ export const TAB_QUICK_ACCESS: Record<string, QuickAccessItem[]> = {
     { id: 'portfolio-showcase', label: 'Portfolio Showcase',  path: '/learner-dashboard/resources', iconType: 'showcase' },
   ],
   Progress: [
-    { id: 'gap-analysis',      label: 'Gap Analysis',    path: '/learner-dashboard/progress',         iconType: 'gap' },
-    { id: 'learning-journey',  label: 'Learning Journey', path: '/learner-dashboard/learning-journals', iconType: 'journey' },
+    { id: 'gap-analysis',      label: 'Gap Analysis',    path: '/learner-dashboard/gap-analysis',      iconType: 'gap' },
+    { id: 'learning-journey',  label: 'Learning Journey', path: '/learner-dashboard/learning-journey', iconType: 'journey' },
     { id: 'scorecard',         label: 'Scorecard',        path: '/learner-dashboard/scorecard',         iconType: 'scorecard' },
     { id: 'progress-percent',  label: 'Progress (0%)',    path: '/learner-dashboard/progress',         iconType: 'progress' },
   ],

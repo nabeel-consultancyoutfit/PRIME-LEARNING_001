@@ -1,10 +1,11 @@
 /**
  * Progress Page Component
- * Displays learner overall progress and unit-specific progress
+ * Pixel-perfect to Figma node 102:10047 / 102:10827
  */
 
 import React from 'react';
-import { Box, Checkbox } from '@mui/material';
+import { Checkbox } from '@mui/material';
+import { MenuBook, ExpandMore } from '@mui/icons-material';
 import LearnerLayout from '@/modules/learner/layout/LearnerLayout';
 import { useProgress } from './useProgress';
 import {
@@ -16,25 +17,32 @@ import {
   CheckboxGroup,
   CheckboxLabel,
   UnitFilterSection,
-  FilterSelect,
+  UnitFilterLabel,
+  FilterDropdown,
   ViewMoreLink,
   UnitsGrid,
   UnitCardWrapper,
-  UnitIcon,
+  CardTopRow,
+  UnitIconBox,
   UnitTitle,
-  UnitProgress,
-  ProgressMetric,
-  ProgressValue,
-  StyledLinearProgress,
+  CardBottomRow,
+  ActualSection,
+  UnitProgressSection,
+  MetricLabel,
+  MetricValue,
+  ProgressBarWrapper,
+  ProgressBarFill,
+  ProgressBarText,
 } from './Progress.style';
 
 const Progress: React.FC = () => {
-  const { state, setUnitFilter, setIncludePending, setShowDetailed, handleViewMore } = useProgress();
+  const { state, setIncludePending, setShowDetailed, handleViewMore } = useProgress();
 
   return (
     <LearnerLayout pageTitle="Progress">
       <ProgressContainer>
-        {/* Top Bar */}
+
+        {/* ── Top bar ── */}
         <TopBar>
           <ProgressInfo>
             <ProgressLabel>Over all Progress:</ProgressLabel>
@@ -47,6 +55,7 @@ const Progress: React.FC = () => {
                 checked={state.includePending}
                 onChange={(e) => setIncludePending(e.target.checked)}
                 size="small"
+                sx={{ padding: '4px', color: 'rgba(28,28,28,0.35)', '&.Mui-checked': { color: '#1C1C1C' } }}
               />
               Include pending learning activities
             </CheckboxLabel>
@@ -55,61 +64,55 @@ const Progress: React.FC = () => {
                 checked={state.showDetailed}
                 onChange={(e) => setShowDetailed(e.target.checked)}
                 size="small"
+                sx={{ padding: '4px', color: 'rgba(28,28,28,0.35)', '&.Mui-checked': { color: '#1C1C1C' } }}
               />
               Show detailed view
             </CheckboxLabel>
           </CheckboxGroup>
         </TopBar>
 
-        {/* Unit Filter Section */}
+        {/* ── Unit filter row ── */}
         <UnitFilterSection>
-          <ProgressLabel htmlFor="unit-select">Unit:</ProgressLabel>
-          <FilterSelect
-            id="unit-select"
-            value={state.unitFilter}
-            onChange={(e) => setUnitFilter(e.target.value)}
-          >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </FilterSelect>
+          <UnitFilterLabel>Unit:</UnitFilterLabel>
+          <FilterDropdown>
+            {state.unitFilter} <ExpandMore sx={{ fontSize: '16px', color: 'rgba(28,28,28,0.5)', ml: '2px' }} />
+          </FilterDropdown>
           <ViewMoreLink onClick={handleViewMore}>View more</ViewMoreLink>
         </UnitFilterSection>
 
-        {/* Units Grid */}
+        {/* ── Cards grid ── */}
         <UnitsGrid>
           {state.units.map((unit) => (
             <UnitCardWrapper key={unit.id}>
-              {/* Unit Icon */}
-              <UnitIcon>💻</UnitIcon>
 
-              {/* Unit Title */}
-              <UnitTitle>{unit.title}</UnitTitle>
+              {/* Icon + Title */}
+              <CardTopRow>
+                <UnitIconBox>
+                  <MenuBook sx={{ fontSize: '22px', color: '#1C1C1C' }} />
+                </UnitIconBox>
+                <UnitTitle>{unit.title}</UnitTitle>
+              </CardTopRow>
 
-              {/* Progress Metrics */}
-              <UnitProgress>
-                <ProgressMetric>
-                  <span>Actual:</span>
-                  <ProgressValue>{unit.actualProgress}%</ProgressValue>
-                </ProgressMetric>
+              {/* Actual + Unit Progress bar */}
+              <CardBottomRow>
+                <ActualSection>
+                  <MetricLabel>Actual:</MetricLabel>
+                  <MetricValue>{unit.actualProgress}%</MetricValue>
+                </ActualSection>
 
-                <ProgressMetric>
-                  <span>Unit Progress:</span>
-                  <ProgressValue>{unit.unitProgress}%</ProgressValue>
-                </ProgressMetric>
+                <UnitProgressSection>
+                  <MetricLabel>Unit Progress</MetricLabel>
+                  <ProgressBarWrapper>
+                    <ProgressBarFill value={unit.unitProgress} />
+                    <ProgressBarText>{unit.unitProgress}%</ProgressBarText>
+                  </ProgressBarWrapper>
+                </UnitProgressSection>
+              </CardBottomRow>
 
-                <Box sx={{ marginTop: '8px' }}>
-                  <StyledLinearProgress
-                    variant="determinate"
-                    value={unit.unitProgress}
-                  />
-                </Box>
-              </UnitProgress>
             </UnitCardWrapper>
           ))}
         </UnitsGrid>
+
       </ProgressContainer>
     </LearnerLayout>
   );
