@@ -13,7 +13,7 @@ export const MOCK_UNITS: UnitCard[] = [
   },
   {
     id: '2',
-    title: 'Business Administrator End Point Assessment',
+    title: '~ Business Administrator End Point Assessment',
     actualProgress: 0,
     unitProgress: 51,
   },

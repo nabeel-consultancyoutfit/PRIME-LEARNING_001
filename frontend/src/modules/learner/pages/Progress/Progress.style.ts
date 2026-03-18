@@ -100,7 +100,7 @@ export const FilterDropdown = styled(Box)({
 });
 
 export const ViewMoreLink = styled('a')({
-  color: '#0057FF',
+  color: '#5C6BC0',
   textDecoration: 'none',
   fontSize: '13px',
   fontWeight: 500,
@@ -159,9 +159,9 @@ export const CardTopRow = styled(Box)({
 });
 
 export const UnitIconBox = styled(Box)({
-  width: '44px',
-  height: '44px',
-  minWidth: '44px',
+  width: '40px',
+  height: '40px',
+  minWidth: '40px',
   backgroundColor: 'rgba(28, 28, 28, 0.08)',
   borderRadius: '8px',
   display: 'flex',
@@ -171,12 +171,12 @@ export const UnitIconBox = styled(Box)({
 });
 
 export const UnitTitle = styled(Box)({
-  fontSize: '16px',
+  fontSize: '14px',
   fontWeight: 600,
   color: '#1C1C1C',
-  lineHeight: '1.35',
+  lineHeight: '1.4',
   fontFamily: TYPOGRAPHY.fontFamily,
-  paddingTop: '4px',
+  paddingTop: '2px',
 });
 
 /* Bottom row: Actual (left) + Unit Progress bar (right) */
@@ -209,20 +209,20 @@ export const MetricLabel = styled(Box)({
 });
 
 export const MetricValue = styled(Box)({
-  fontSize: '20px',
+  fontSize: '18px',
   fontWeight: 700,
   color: '#1C1C1C',
   fontFamily: TYPOGRAPHY.fontFamily,
-  lineHeight: '1',
+  lineHeight: '1.2',
 });
 
 /* Custom progress bar: pill-shaped, lavender fill, percentage text inside */
 export const ProgressBarWrapper = styled(Box)({
   position: 'relative',
   width: '100%',
-  height: '24px',
-  borderRadius: '12px',
-  backgroundColor: 'rgba(28,28,28,0.08)',
+  height: '28px',
+  borderRadius: '10px',
+  backgroundColor: 'rgba(198,199,248,0.28)',
   overflow: 'hidden',
 });
 
@@ -233,7 +233,7 @@ export const ProgressBarFill = styled(Box)<{ value: number }>(({ value }) => ({
   height: '100%',
   width: `${Math.min(value, 100)}%`,
   backgroundColor: '#C6C7F8',
-  borderRadius: '12px',
+  borderRadius: '10px',
   minWidth: value > 0 ? '36px' : '0px',
 }));
 
@@ -242,7 +242,7 @@ export const ProgressBarText = styled(Box)({
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  fontSize: '12px',
+  fontSize: '13px',
   fontWeight: 700,
   color: '#1C1C1C',
   fontFamily: TYPOGRAPHY.fontFamily,
