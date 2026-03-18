@@ -4,19 +4,32 @@
  */
 
 import React from 'react';
+import { useRouter } from 'next/router';
 import { Box, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
 import {
   HelpOutline as HelpIcon,
   ChevronRight as ChevronRightIcon,
   ArrowCircleRight as ArrowCircleRightIcon,
-  Public as PublicIcon,
-  Description as DocumentIcon,
-  DateRange as CalendarIcon,
-  LocationOn as LocationIcon,
   EmojiObjects as LightbulbIcon,
   Assignment as ClipboardIcon,
   BarChart as BarChartIcon,
   ExpandMore as ExpandMoreIcon,
+  // Quick-access chip icons — Figma node 233:19161
+  DonutSmallOutlined as ActivityIcon,
+  FileCopyOutlined as EvidenceIcon,
+  EventAvailableOutlined as TimesheetIcon,
+  CalendarTodayOutlined as VisitIcon,
+  // Generic fallback icons for other tabs
+  DownloadOutlined as DownloadIcon,
+  GroupsOutlined as WitnessIcon,
+  CollectionsBookmarkOutlined as ShowcaseIcon,
+  AnalyticsOutlined as GapIcon,
+  RouteOutlined as JourneyIcon,
+  TrackChangesOutlined as ScorecardIcon,
+  TrendingUpOutlined as ProgressIcon,
+  FeedbackOutlined as FeedbackIcon,
+  ExitToAppOutlined as ExitIcon,
+  SupportOutlined as SupportIcon,
 } from '@mui/icons-material';
 import LearnerLayout from '@/modules/learner/layout/LearnerLayout';
 import { COLORS } from '@/modules/learner/theme/tokens';
@@ -25,6 +38,8 @@ import { TAB_QUICK_ACCESS } from './Dashboard.data';
 import {
   WelcomeBannerWrapper,
   WelcomeHeading,
+  SafeguardingRow,
+  SafeguardingLink,
   TabsAndTrainerWrapper,
   TabsCardWrapper,
   TabBarWrapper,
@@ -109,22 +124,30 @@ const MONTH_NAMES = [
 ];
 
 /**
- * Get quick access icon based on type
+ * Quick-access chip icons — keyed to match Dashboard.data iconType values
+ * Activity tab uses Figma-spec icons; other tabs fall back to generic ones
  */
+const CHIP_ICON_MAP: Record<string, React.ElementType> = {
+  activity:  ActivityIcon,
+  evidence:  EvidenceIcon,
+  timesheet: TimesheetIcon,
+  visit:     VisitIcon,
+  download:  DownloadIcon,
+  witness:   WitnessIcon,
+  showcase:  ShowcaseIcon,
+  gap:       GapIcon,
+  journey:   JourneyIcon,
+  scorecard: ScorecardIcon,
+  progress:  ProgressIcon,
+  feedback:  FeedbackIcon,
+  exit:      ExitIcon,
+  support:   SupportIcon,
+};
+
 const getQuickAccessIcon = (iconType?: string) => {
-  const iconProps = { sx: { fontSize: '18px' } };
-  switch (iconType) {
-    case 'public':
-      return <PublicIcon {...iconProps} />;
-    case 'document':
-      return <DocumentIcon {...iconProps} />;
-    case 'calendar':
-      return <CalendarIcon {...iconProps} />;
-    case 'location':
-      return <LocationIcon {...iconProps} />;
-    default:
-      return null;
-  }
+  if (!iconType) return null;
+  const Icon = CHIP_ICON_MAP[iconType];
+  return Icon ? <Icon sx={{ fontSize: '24px' }} /> : null;
 };
 
 /**
@@ -144,15 +167,30 @@ const getInfoCardIcon = (iconType?: string) => {
 };
 
 /**
- * Section 1: Welcome Banner & Safeguarding Info
+ * Section 1: Welcome Banner & Safeguarding Info  (Figma node 231:19004)
+ *
+ * Row 1: "Welcome John" bold 30px + question-mark icon
+ * Row 2: safeguarding message + email link + phone link (all inline, 16px)
  */
 const WelcomeBanner: React.FC = () => {
   return (
     <WelcomeBannerWrapper>
+      {/* Row 1: heading + help icon */}
       <WelcomeHeading>
         Welcome John
-        <HelpIcon sx={{ fontSize: '32px', color: COLORS.text.secondary, cursor: 'pointer' }} />
+        <HelpIcon sx={{ fontSize: '24px', color: 'rgba(28,28,28,0.4)', cursor: 'pointer' }} />
       </WelcomeHeading>
+
+      {/* Row 2: safeguarding text + contact links */}
+      <SafeguardingRow>
+        <span>If you are concerned or worried you can talk to one of our safeguarding team:</span>
+        <SafeguardingLink href="mailto:info@primelearning.uk">
+          Email: info@primelearning.uk
+        </SafeguardingLink>
+        <SafeguardingLink href="tel:+4409988423">
+          Phone: +4409988423
+        </SafeguardingLink>
+      </SafeguardingRow>
     </WelcomeBannerWrapper>
   );
 };
@@ -167,6 +205,7 @@ interface TabsAndTrainerProps {
 
 const TabsAndTrainer: React.FC<TabsAndTrainerProps> = ({ activeTab, onTabChange }) => {
   const { state } = useDashboard();
+  const router = useRouter();
 
   return (
     <TabsAndTrainerWrapper>
@@ -184,14 +223,24 @@ const TabsAndTrainer: React.FC<TabsAndTrainerProps> = ({ activeTab, onTabChange 
           ))}
         </TabBarWrapper>
 
-        {/* Quick Access Chips - show relevant items per tab */}
+        {/* Quick Access Chips — router.push for guaranteed navigation */}
         {TAB_QUICK_ACCESS[activeTab] && (
           <QuickAccessChipsWrapper>
             {TAB_QUICK_ACCESS[activeTab].map((item) => (
-              <QuickAccessChip key={item.id}>
-                {getQuickAccessIcon(item.iconType)}
+              <QuickAccessChip
+                key={item.id}
+                onClick={() => router.push(item.path)}
+                role="link"
+                tabIndex={0}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') router.push(item.path);
+                }}
+              >
+                <span className="chip-icon">{getQuickAccessIcon(item.iconType)}</span>
                 {item.label}
-                <ChevronRightIcon sx={{ fontSize: '16px' }} />
+                <span className="chip-arrow">
+                  <ChevronRightIcon sx={{ fontSize: '16px' }} />
+                </span>
               </QuickAccessChip>
             ))}
           </QuickAccessChipsWrapper>

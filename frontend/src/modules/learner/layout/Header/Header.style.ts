@@ -196,3 +196,74 @@ export const DropdownChevron = styled(Box)(({ theme }) => ({
   color: COLORS.text.primary,
   flexShrink: 0,
 }));
+
+// ─── Profile Dropdown ─────────────────────────────────────────────────────────
+
+/** Outer wrapper so the profile section + menu are stacked in a relative container */
+export const ProfileDropdownWrapper = styled(Box)({
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+});
+
+/**
+ * The dropdown card — matches Figma node 61:11971
+ * Width: 217px, white bg, rounded 16px, shadow
+ * Appears below-right of the profile chip
+ */
+export const ProfileMenuCard = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: 'calc(100% + 10px)',
+  right: 0,
+  width: '217px',
+  backgroundColor: '#FFFFFF',
+  borderRadius: '16px',
+  boxShadow: '0px 8px 32px rgba(28,28,28,0.12), 0px 2px 8px rgba(28,28,28,0.06)',
+  border: '1px solid rgba(28,28,28,0.06)',
+  padding: '4px',
+  zIndex: 1300,
+  overflow: 'hidden',
+  // entrance animation
+  animation: 'profileMenuIn 0.15s ease',
+  '@keyframes profileMenuIn': {
+    from: { opacity: 0, transform: 'translateY(-6px) scale(0.97)' },
+    to:   { opacity: 1, transform: 'translateY(0)  scale(1)' },
+  },
+}));
+
+/**
+ * Each menu row — 209px wide, 36px tall
+ * Padding: 8px top/bottom, 12px left/right — matches Figma _Sidebar Item
+ */
+export const ProfileMenuItem = styled(Box)<{ active?: boolean }>(({ active }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '8px 12px',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  backgroundColor: active ? 'rgba(28,28,28,0.05)' : 'transparent',
+  transition: 'background-color 0.12s ease',
+  '&:hover': {
+    backgroundColor: 'rgba(28,28,28,0.06)',
+  },
+}));
+
+export const ProfileMenuItemLabel = styled(Box)({
+  fontSize: '14px',
+  fontWeight: 400,
+  color: '#1C1C1C',
+  fontFamily: "'Inter', sans-serif",
+  lineHeight: '20px',
+  whiteSpace: 'nowrap',
+  letterSpacing: 0,
+});
+
+export const ProfileMenuItemArrow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  color: 'rgba(28,28,28,0.4)',
+  fontSize: '14px',
+});

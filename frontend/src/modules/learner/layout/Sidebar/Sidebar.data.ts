@@ -23,7 +23,7 @@ export const LEARNER_NAV_ITEMS: NavItem[] = [
   {
     label: 'Dashboard',
     icon: DashboardCustomizeOutlined,
-    path: '/learner-dashboard',
+    path: '/learner-dashboard/dashboard',
   },
   {
     label: 'Tasks',

@@ -32,7 +32,9 @@ export const LayoutContentWrapper = styled(Box)(({ theme }) => ({
 export const LayoutHeaderWrapper = styled(Box)(({ theme }) => ({
   flex: `0 0 ${SPACING.header.height}px`,
   height: SPACING.header.height,
-  overflowX: 'hidden',
+  // Allow the profile dropdown (absolutely positioned) to render outside header bounds.
+  // Note: `overflow-x: hidden` can force `overflow-y` to become non-visible and clip the menu.
+  overflow: 'visible',
   borderBottom: `1px solid ${COLORS.header.borderColor}`,
 }));
 

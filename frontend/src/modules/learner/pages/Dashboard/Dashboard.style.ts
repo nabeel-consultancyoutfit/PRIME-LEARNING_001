@@ -8,25 +8,29 @@ import { Box, Paper, Typography, Table } from '@mui/material';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS, SHADOWS } from '@/modules/learner/theme/tokens';
 
 // ============================================================================
-// Section 1: Welcome Banner & Safeguarding
+// Section 1: Welcome Banner & Safeguarding  (Figma node 231:19004)
 // ============================================================================
 
-export const WelcomeBannerWrapper = styled(Box)(({ theme }) => ({
-  backgroundColor: 'transparent',
-}));
+export const WelcomeBannerWrapper = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+});
 
-export const WelcomeHeading = styled(Typography)(({ theme }) => ({
+/* "Welcome John  (?)" row — 30px Bold, tracking -0.6px */
+export const WelcomeHeading = styled(Typography)({
   fontSize: '30px',
-  fontWeight: TYPOGRAPHY.h4.fontWeight,
-  color: COLORS.text.primary,
+  fontWeight: 700,
+  color: '#000000',
   display: 'flex',
   alignItems: 'center',
   gap: '15px',
   letterSpacing: '-0.6px',
   lineHeight: '40px',
-}));
+  fontFamily: "'Inter', sans-serif",
+});
 
-export const HelpIconStyled = styled(Box)(({ theme }) => ({
+export const HelpIconStyled = styled(Box)({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -39,55 +43,72 @@ export const HelpIconStyled = styled(Box)(({ theme }) => ({
   cursor: 'pointer',
   color: COLORS.text.secondary,
   flexShrink: 0,
-}));
+});
 
-export const SafeguardingRow = styled(Box)(({ theme }) => ({
+/* Safeguarding row — 16px Regular, black, tracking -0.32px, same line */
+export const SafeguardingRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   gap: '16px',
   flexWrap: 'wrap',
-  fontSize: TYPOGRAPHY.body2.fontSize,
-  color: COLORS.text.primary,
-}));
+  fontSize: '16px',
+  fontWeight: 400,
+  color: '#000000',
+  letterSpacing: '-0.32px',
+  lineHeight: 'normal',
+  fontFamily: "'Inter', sans-serif",
+});
 
-export const SafeguardingContact = styled(Box)(({ theme }) => ({
+/* Email / Phone links — underlined */
+export const SafeguardingLink = styled('a')({
+  fontSize: '16px',
+  fontWeight: 500,
+  color: '#000000',
+  textDecoration: 'underline',
+  textDecorationSkipInk: 'none',
+  letterSpacing: '-0.32px',
+  cursor: 'pointer',
+  fontFamily: "'Inter', sans-serif",
+  '&:hover': { opacity: 0.75 },
+});
+
+export const SafeguardingContact = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   gap: '4px',
-
   '& a': {
     color: COLORS.text.primary,
     textDecoration: 'underline',
     cursor: 'pointer',
     fontWeight: 500,
-
-    '&:hover': {
-      opacity: 0.8,
-    },
+    '&:hover': { opacity: 0.8 },
   },
-}));
+});
 
 // ============================================================================
-// Section 2: Content Tabs & Trainer Card Row
+// Section 2: Content Tabs & Trainer Card Row  (Figma node 233:19222)
+// ONE white card — flex row, justify-between
 // ============================================================================
 
+/* The ENTIRE row is one white card (Figma: bg-white border rounded-[16px] p-[16px] flex justify-between) */
 export const TabsAndTrainerWrapper = styled(Box)(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: '1fr auto',
-  gap: SPACING.sectionGap,
-  alignItems: 'start',
-
-  [theme.breakpoints.down('lg')]: {
-    gridTemplateColumns: '1fr',
-  },
+  backgroundColor: '#FFFFFF',
+  border: '1px solid rgba(28,28,28,0.2)',
+  borderRadius: '16px',
+  padding: '16px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '16px',
 }));
 
-export const TabsCardWrapper = styled(Paper)(({ theme }) => ({
-  padding: SPACING.card.padding,
-  backgroundColor: COLORS.card.bg,
-  border: `1px solid ${COLORS.card.border}`,
-  borderRadius: BORDER_RADIUS.card,
-}));
+/* Left side column: tabs row + chips row — no background, no border */
+export const TabsCardWrapper = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  flex: 1,
+});
 
 export const TabBarWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -96,49 +117,84 @@ export const TabBarWrapper = styled(Box)(({ theme }) => ({
 
 export const TabItem = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'isActive',
-})<{ isActive: boolean }>(({ theme, isActive }) => ({
+})<{ isActive: boolean }>(({ isActive }) => ({
   padding: '4px 8px',
   fontSize: '16px',
-  fontWeight: isActive ? 700 : 400,
-  color: isActive ? COLORS.text.primary : COLORS.text.secondary,
+  /* Active: Semi Bold #1C1C1C; Inactive: Regular rgba(28,28,28,0.8) — exact Figma values */
+  fontWeight: isActive ? 600 : 400,
+  color: isActive ? '#1C1C1C' : 'rgba(28,28,28,0.8)',
+  fontFamily: "'Inter', sans-serif",
   borderRadius: '8px',
   cursor: 'pointer',
-  transition: 'all 0.2s ease',
-  borderBottom: isActive ? `2px solid ${COLORS.text.primary}` : 'transparent',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+  transition: 'color 0.15s ease',
+  /* Underline via bottom border only on active — 2px solid, flush below text */
+  borderBottom: isActive ? '2px solid #1C1C1C' : '2px solid transparent',
+  lineHeight: '20px',
 
   '&:hover': {
-    color: COLORS.text.primary,
+    color: '#1C1C1C',
   },
 }));
 
 export const QuickAccessChipsWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
-  gap: '12px',
+  gap: '16px',
   flexWrap: 'wrap',
+  alignItems: 'center',
 }));
 
+/* Figma node 233:19161 — each chip is an <a> with icon + label + arrow-right
+   border: 1px solid rgba(28,28,28,0.1)
+   border-radius: 16px
+   padding: 12px
+   gap: 12px
+*/
 export const QuickAccessChip = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: '12px',
   padding: '12px',
-  backgroundColor: COLORS.chip.bg,
-  border: `1px solid ${COLORS.chip.border}`,
+  backgroundColor: '#FFFFFF',
+  border: '1px solid rgba(28,28,28,0.1)',
   borderRadius: '16px',
   cursor: 'pointer',
   fontSize: '14px',
-  fontWeight: 500,
-  color: COLORS.text.primary,
-  transition: 'all 0.2s ease',
+  fontWeight: 400,
+  color: '#1C1C1C',
+  fontFamily: "'Inter', sans-serif",
+  position: 'relative',
+  paddingRight: '36px',           // room for the absolute arrow
+  transition: 'border-color 0.15s ease, background-color 0.15s ease',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap' as const,
 
-  '& svg': {
-    fontSize: '18px',
-    color: COLORS.text.secondary,
+  '& .chip-icon': {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    width: 24,
+    height: 24,
+    color: '#1C1C1C',
+  },
+
+  '& .chip-arrow': {
+    position: 'absolute',
+    right: 11,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    display: 'flex',
+    alignItems: 'center',
+    color: 'rgba(28,28,28,0.4)',
+    fontSize: '16px',
   },
 
   '&:hover': {
-    borderColor: COLORS.progress.green,
-    backgroundColor: '#F0F9F0',
+    borderColor: 'rgba(28,28,28,0.25)',
+    backgroundColor: '#FAFAFA',
   },
 }));
 

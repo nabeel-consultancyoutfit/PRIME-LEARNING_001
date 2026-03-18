@@ -5,7 +5,8 @@
 export interface QuickAccessItem {
   id: string;
   label: string;
-  iconType?: 'public' | 'document' | 'calendar' | 'location';
+  path: string;
+  iconType?: 'activity' | 'evidence' | 'timesheet' | 'visit' | 'download' | 'witness' | 'showcase' | 'gap' | 'journey' | 'scorecard' | 'progress' | 'feedback' | 'exit' | 'support';
 }
 
 export interface TrainerInfo {

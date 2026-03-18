@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import Dashboard from '@/modules/learner/pages/Dashboard';
+import DashboardSelector from '@/modules/learner/pages/DashboardSelector';
 
-function LearnerDashboardPage() {
-  return <Dashboard />;
+function LearnerSelectDashboardPage() {
+  return <DashboardSelector />;
 }
 
-LearnerDashboardPage.getLayout = (page: ReactNode) => page;
+LearnerSelectDashboardPage.getLayout = (page: ReactNode) => page;
 
-export default LearnerDashboardPage;
+export default LearnerSelectDashboardPage;

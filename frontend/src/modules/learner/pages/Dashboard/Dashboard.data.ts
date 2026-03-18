@@ -30,46 +30,50 @@ export const SAFEGUARDING_CONTACTS: SafeguardingContact[] = [
   },
 ];
 
-export const QUICK_ACCESS_ITEMS: Omit<QuickAccessItem, 'icon'>[] = [
+export const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
   {
     id: 'activity',
     label: 'Activity',
-    iconType: 'public',
+    path: '/learner-dashboard/activity',
+    iconType: 'activity',
   },
   {
     id: 'learning-evidence',
     label: 'Learning Activity Evidence',
-    iconType: 'document',
+    path: '/learner-dashboard/evidence',
+    iconType: 'evidence',
   },
   {
     id: 'timesheet',
     label: 'Timesheet',
-    iconType: 'calendar',
+    path: '/learner-dashboard/timesheet',
+    iconType: 'timesheet',
   },
   {
     id: 'visit',
     label: 'Visit',
-    iconType: 'location',
+    path: '/learner-dashboard/visit',
+    iconType: 'visit',
   },
 ];
 
-export const TAB_QUICK_ACCESS: Record<string, Omit<QuickAccessItem, 'icon'>[]> = {
+export const TAB_QUICK_ACCESS: Record<string, QuickAccessItem[]> = {
   Activity: QUICK_ACCESS_ITEMS,
   Manage: [
-    { id: 'download-portfolio', label: 'Download Portfolio', iconType: 'document' },
-    { id: 'expert-witnesses', label: 'Expert / Witnesses', iconType: 'public' },
-    { id: 'portfolio-showcase', label: 'Portfolio Showcase', iconType: 'document' },
+    { id: 'download-portfolio', label: 'Download Portfolio', path: '/learner-dashboard/resources', iconType: 'download' },
+    { id: 'expert-witnesses',   label: 'Expert / Witnesses',  path: '/learner-dashboard/tasks',     iconType: 'witness' },
+    { id: 'portfolio-showcase', label: 'Portfolio Showcase',  path: '/learner-dashboard/resources', iconType: 'showcase' },
   ],
   Progress: [
-    { id: 'gap-analysis', label: 'Gap Analysis', iconType: 'document' },
-    { id: 'learning-journey', label: 'Learning Journey', iconType: 'document' },
-    { id: 'scorecard', label: 'Scorecard', iconType: 'document' },
-    { id: 'progress-percent', label: 'Progress (0%)', iconType: 'public' },
+    { id: 'gap-analysis',      label: 'Gap Analysis',    path: '/learner-dashboard/progress',         iconType: 'gap' },
+    { id: 'learning-journey',  label: 'Learning Journey', path: '/learner-dashboard/learning-journals', iconType: 'journey' },
+    { id: 'scorecard',         label: 'Scorecard',        path: '/learner-dashboard/scorecard',         iconType: 'scorecard' },
+    { id: 'progress-percent',  label: 'Progress (0%)',    path: '/learner-dashboard/progress',         iconType: 'progress' },
   ],
   Forms: [
-    { id: 'learner-feedback', label: 'Learner feedback from teach sessions', iconType: 'document' },
-    { id: 'exit-review', label: 'Exit review and Programme Evaluation', iconType: 'document' },
-    { id: 'learning-support', label: '5.Learning Support Form*', iconType: 'document' },
+    { id: 'learner-feedback', label: 'Learner feedback from teach sessions', path: '/learner-dashboard/tasks', iconType: 'feedback' },
+    { id: 'exit-review',      label: 'Exit review and Programme Evaluation', path: '/learner-dashboard/tasks', iconType: 'exit' },
+    { id: 'learning-support', label: '5.Learning Support Form*',             path: '/learner-dashboard/tasks', iconType: 'support' },
   ],
 };
 
