@@ -71,9 +71,9 @@ export const TAB_QUICK_ACCESS: Record<string, QuickAccessItem[]> = {
     { id: 'progress-percent',  label: 'Progress (0%)',    path: '/learner-dashboard/progress',         iconType: 'progress' },
   ],
   Forms: [
-    { id: 'learner-feedback', label: 'Learner feedback from teach sessions', path: '/learner-dashboard/tasks', iconType: 'feedback' },
-    { id: 'exit-review',      label: 'Exit review and Programme Evaluation', path: '/learner-dashboard/tasks', iconType: 'exit' },
-    { id: 'learning-support', label: '5.Learning Support Form*',             path: '/learner-dashboard/tasks', iconType: 'support' },
+    { id: 'learner-feedback', label: 'Learner feedback from teach sessions', path: '/learner-dashboard/learner-feedback', iconType: 'feedback' },
+    { id: 'exit-review',      label: 'Exit review and Programme Evaluation', path: '/learner-dashboard/exit-review',      iconType: 'exit' },
+    { id: 'learning-support', label: '5.Learning Support Form*',             path: '/learner-dashboard/learning-support', iconType: 'support' },
   ],
 };
 
