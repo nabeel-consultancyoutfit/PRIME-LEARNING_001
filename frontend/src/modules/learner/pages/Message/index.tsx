@@ -1,42 +1,57 @@
 /**
  * Learner — Message Page
- * Two-panel chat UI with search bar + All / Unread / Unresolved tabs
+ * Pixel-perfect to Figma node 40000068:36425
+ * Two-panel: left conversation list (search + All/Unread/Unresolved tabs) + right chat panel
  */
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
-import { SendOutlined, ChatBubbleOutlineOutlined, SearchOutlined } from '@mui/icons-material';
+import {
+  SendOutlined,
+  ChatBubbleOutlineOutlined,
+  SearchOutlined,
+  AddOutlined,
+  MicNoneOutlined,
+  EmojiEmotionsOutlined,
+  AttachFileOutlined,
+} from '@mui/icons-material';
 import LearnerLayout from '@/modules/learner/layout/LearnerLayout';
 import {
   PageContainer,
   ConversationList,
-  ConversationListHeader,
-  ConversationListBody,
-  ConversationItem,
-  ConvAvatar,
-  ConvInfo,
-  ConvName,
-  ConvRole,
-  ConvPreview,
-  ConvMeta,
-  ConvTime,
-  UnreadBadge,
   SearchBarWrapper,
   SearchBarInner,
   SearchInput,
   TabsRow,
   TabBtn,
+  ConversationListBody,
+  ConversationItem,
+  AvatarWrapper,
+  ConvAvatar,
+  StatusDot,
+  ConvInfo,
+  ConvTopRow,
+  ConvName,
+  ConvTime,
+  ConvBottomRow,
+  ConvPreview,
+  UnreadBadge,
   ChatPanel,
   ChatHeader,
+  ChatHeaderAvatar,
   ChatName,
-  ChatRole,
-  ChatProgramme,
+  ChatStatus,
   MessageList,
+  DateDivider,
+  DateDividerText,
+  SystemNote,
   MessageBubble,
   BubbleContent,
   BubbleTime,
-  MessageInput,
+  MessageInputBar,
+  InputPlusBtn,
   MessageTextField,
+  InputIconBtn,
   SendButton,
   EmptyChat,
 } from './Message.style';
@@ -48,7 +63,7 @@ import {
 
 type Tab = 'all' | 'unread' | 'unresolved';
 
-const LearnerMessage: React.FC = () => {
+const LearnerMessagePage: React.FC = () => {
   const [conversations, setConversations] = useState<LearnerConversation[]>([]);
   const [selected, setSelected] = useState<LearnerConversation | null>(null);
   const [localMessages, setLocalMessages] = useState<LearnerMessage[]>([]);
@@ -76,7 +91,7 @@ const LearnerMessage: React.FC = () => {
     }
   }, [localMessages]);
 
-  // ── Filter: search + tab ─────────────────────────────────────────────────────
+  // ── Filter: search + tab ──────────────────────────────────────────────────────
   const filtered = conversations.filter((c) => {
     const q = search.toLowerCase();
     const matchesSearch =
@@ -92,11 +107,10 @@ const LearnerMessage: React.FC = () => {
     return matchesSearch && matchesTab;
   });
 
-  const totalUnread = conversations.reduce((s, c) => s + c.unreadCount, 0);
   const unreadTabCount = conversations.filter((c) => c.unreadCount > 0).length;
   const unresolvedTabCount = conversations.filter((c) => !c.isResolved).length;
 
-  // ── Actions ──────────────────────────────────────────────────────────────────
+  // ── Actions ───────────────────────────────────────────────────────────────────
   const handleSelectConversation = (conv: LearnerConversation) => {
     setSelected(conv);
     setLocalMessages(conv.messages);
@@ -108,16 +122,15 @@ const LearnerMessage: React.FC = () => {
 
   const handleSend = () => {
     if (!newMessage.trim() || !selected) return;
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     const msg: LearnerMessage = {
       id: `msg-${Date.now()}`,
       content: newMessage.trim(),
       senderId: 'learner',
-      senderName: 'John Doe',
+      senderName: 'You',
       senderInitials: 'JD',
-      timestamp: new Date().toLocaleString('en-GB', {
-        day: '2-digit', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit',
-      }),
+      timestamp: timeStr,
       isFromLearner: true,
     };
     setLocalMessages((prev) => [...prev, msg]);
@@ -131,14 +144,6 @@ const LearnerMessage: React.FC = () => {
     setNewMessage('');
   };
 
-  const handleMarkResolved = () => {
-    if (!selected) return;
-    setConversations((prev) =>
-      prev.map((c) => (c.id === selected.id ? { ...c, isResolved: true } : c))
-    );
-    setSelected((prev) => (prev ? { ...prev, isResolved: true } : prev));
-  };
-
   return (
     <LearnerLayout pageTitle="Message">
       <PageContainer>
@@ -146,22 +151,12 @@ const LearnerMessage: React.FC = () => {
         {/* ── Left panel ── */}
         <ConversationList>
 
-          {/* Title */}
-          <ConversationListHeader>
-            Messages
-            {totalUnread > 0 && (
-              <Box component="span" sx={{ fontSize: '12px', color: '#F44336' }}>
-                ({totalUnread} unread)
-              </Box>
-            )}
-          </ConversationListHeader>
-
           {/* Search */}
           <SearchBarWrapper>
             <SearchBarInner>
               <SearchOutlined />
               <SearchInput
-                placeholder="Search conversations..."
+                placeholder="Search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -191,7 +186,7 @@ const LearnerMessage: React.FC = () => {
             </TabBtn>
           </TabsRow>
 
-          {/* List */}
+          {/* Conversation list */}
           <ConversationListBody>
             {loading ? (
               <Box sx={{ p: 2, color: '#A0A0A0', fontSize: '13px', fontFamily: "'Inter', sans-serif" }}>
@@ -208,26 +203,25 @@ const LearnerMessage: React.FC = () => {
                   active={selected?.id === conv.id}
                   onClick={() => handleSelectConversation(conv)}
                 >
-                  <ConvAvatar bgcolor={conv.avatarColor}>{conv.contactInitials}</ConvAvatar>
+                  <AvatarWrapper>
+                    <ConvAvatar bgcolor={conv.avatarColor}>
+                      {conv.contactInitials}
+                    </ConvAvatar>
+                    <StatusDot status={conv.status} />
+                  </AvatarWrapper>
+
                   <ConvInfo>
-                    <ConvName>{conv.contactName}</ConvName>
-                    <ConvRole>{conv.contactRole}</ConvRole>
-                    <ConvPreview>{conv.lastMessage}</ConvPreview>
+                    <ConvTopRow>
+                      <ConvName>{conv.contactName}</ConvName>
+                      <ConvTime>{conv.lastMessageTime}</ConvTime>
+                    </ConvTopRow>
+                    <ConvBottomRow>
+                      <ConvPreview>{conv.lastMessage}</ConvPreview>
+                      {conv.unreadCount > 0 && (
+                        <UnreadBadge>{conv.unreadCount}</UnreadBadge>
+                      )}
+                    </ConvBottomRow>
                   </ConvInfo>
-                  <ConvMeta>
-                    <ConvTime>{conv.lastMessageTime}</ConvTime>
-                    {conv.unreadCount > 0 && <UnreadBadge>{conv.unreadCount}</UnreadBadge>}
-                    {conv.isResolved && (
-                      <Box sx={{
-                        fontSize: '10px', color: '#43A047', fontWeight: 600,
-                        fontFamily: "'Inter', sans-serif",
-                        backgroundColor: 'rgba(67,160,71,0.1)',
-                        borderRadius: '8px', padding: '1px 6px',
-                      }}>
-                        Resolved
-                      </Box>
-                    )}
-                  </ConvMeta>
                 </ConversationItem>
               ))
             )}
@@ -238,51 +232,50 @@ const LearnerMessage: React.FC = () => {
         <ChatPanel>
           {selected ? (
             <>
+              {/* Chat header */}
               <ChatHeader>
-                <ConvAvatar bgcolor={selected.avatarColor}>{selected.contactInitials}</ConvAvatar>
+                <AvatarWrapper>
+                  <ChatHeaderAvatar bgcolor={selected.avatarColor}>
+                    {selected.contactInitials}
+                  </ChatHeaderAvatar>
+                  <StatusDot status={selected.status} />
+                </AvatarWrapper>
                 <Box sx={{ flex: 1 }}>
                   <ChatName>{selected.contactName}</ChatName>
-                  <ChatRole>{selected.contactRole}</ChatRole>
-                  <ChatProgramme>{selected.programme}</ChatProgramme>
+                  <ChatStatus>{selected.lastSeen}</ChatStatus>
                 </Box>
-
-                {selected.isResolved ? (
-                  <Box sx={{
-                    fontSize: '12px', color: '#43A047', fontWeight: 600,
-                    fontFamily: "'Inter', sans-serif",
-                    backgroundColor: 'rgba(67,160,71,0.1)',
-                    borderRadius: '8px', padding: '5px 12px',
-                  }}>
-                    Resolved
-                  </Box>
-                ) : (
-                  <Box
-                    onClick={handleMarkResolved}
-                    sx={{
-                      fontSize: '12px', fontWeight: 500, fontFamily: "'Inter', sans-serif",
-                      border: '1px solid rgba(28,28,28,0.2)', borderRadius: '8px',
-                      padding: '5px 12px', cursor: 'pointer', whiteSpace: 'nowrap',
-                      color: '#1C1C1C',
-                      '&:hover': { backgroundColor: 'rgba(28,28,28,0.04)' },
-                    }}
-                  >
-                    Mark as Resolved
-                  </Box>
-                )}
               </ChatHeader>
 
+              {/* Message thread */}
               <MessageList ref={messageListRef}>
+                {/* Date divider */}
+                <DateDivider>
+                  <DateDividerText>25 April</DateDividerText>
+                </DateDivider>
+
+                {/* System note */}
+                <SystemNote>
+                  You viewed {selected.contactName} 12:25 ▾
+                </SystemNote>
+
                 {localMessages.map((msg) => (
-                  <MessageBubble key={msg.id} isFromLearner={msg.isFromLearner}>
-                    <BubbleContent isFromLearner={msg.isFromLearner}>
+                  <MessageBubble key={msg.id} isFromMe={msg.isFromLearner}>
+                    <BubbleContent isFromMe={msg.isFromLearner}>
                       {msg.content}
+                      <BubbleTime isFromMe={msg.isFromLearner}>
+                        {msg.timestamp}
+                      </BubbleTime>
                     </BubbleContent>
-                    <BubbleTime>{msg.timestamp}</BubbleTime>
                   </MessageBubble>
                 ))}
               </MessageList>
 
-              <MessageInput>
+              {/* Input bar */}
+              <MessageInputBar>
+                <InputPlusBtn>
+                  <AddOutlined sx={{ fontSize: '20px' }} />
+                </InputPlusBtn>
+
                 <MessageTextField
                   placeholder="Type a message..."
                   value={newMessage}
@@ -294,13 +287,25 @@ const LearnerMessage: React.FC = () => {
                     }
                   }}
                 />
-                <SendButton
-                  onClick={handleSend}
-                  startIcon={<SendOutlined sx={{ fontSize: '16px' }} />}
-                >
-                  Send
-                </SendButton>
-              </MessageInput>
+
+                <InputIconBtn>
+                  <EmojiEmotionsOutlined sx={{ fontSize: '18px' }} />
+                </InputIconBtn>
+
+                <InputIconBtn>
+                  <AttachFileOutlined sx={{ fontSize: '18px' }} />
+                </InputIconBtn>
+
+                {newMessage.trim() ? (
+                  <SendButton onClick={handleSend}>
+                    <SendOutlined sx={{ fontSize: '16px' }} />
+                  </SendButton>
+                ) : (
+                  <SendButton onClick={handleSend}>
+                    <MicNoneOutlined sx={{ fontSize: '18px' }} />
+                  </SendButton>
+                )}
+              </MessageInputBar>
             </>
           ) : (
             <EmptyChat>
@@ -315,4 +320,4 @@ const LearnerMessage: React.FC = () => {
   );
 };
 
-export default LearnerMessage;
+export default LearnerMessagePage;

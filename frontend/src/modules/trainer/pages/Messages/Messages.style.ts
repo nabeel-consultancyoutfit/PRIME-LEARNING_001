@@ -1,52 +1,47 @@
+/**
+ * Trainer — Messages page styled components
+ * Pixel-perfect to Figma node 40000068:36425
+ */
+
 import { styled } from '@mui/material/styles';
-import { Box, Paper, Avatar, Button, InputBase } from '@mui/material';
-import { COLORS, BORDER_RADIUS, TYPOGRAPHY, SHADOWS } from '@/modules/trainer/theme/tokens';
+import { Box, InputBase } from '@mui/material';
+import { COLORS, BORDER_RADIUS, TYPOGRAPHY } from '@/modules/trainer/theme/tokens';
+
+// ─── Page layout ──────────────────────────────────────────────────────────────
 
 export const PageContainer = styled(Box)({
   display: 'flex',
-  gap: 0,
   height: 'calc(100vh - 108px)',
+  backgroundColor: '#FFFFFF',
   borderRadius: BORDER_RADIUS.card,
-  overflow: 'hidden',
   border: `1px solid ${COLORS.card.border}`,
-  boxShadow: SHADOWS.card,
-  backgroundColor: COLORS.card.bg,
+  overflow: 'hidden',
 });
 
+// ─── Left panel ───────────────────────────────────────────────────────────────
+
 export const ConversationList = styled(Box)({
-  width: 300,
+  width: 290,
   flexShrink: 0,
-  borderRight: `1px solid ${COLORS.card.border}`,
+  borderRight: `1px solid rgba(28,28,28,0.08)`,
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
+  backgroundColor: '#FFFFFF',
 });
-
-export const ConversationListHeader = styled(Box)({
-  padding: '16px',
-  borderBottom: `1px solid ${COLORS.card.border}`,
-  fontSize: '15px',
-  fontWeight: 600,
-  color: COLORS.text.primary,
-  fontFamily: TYPOGRAPHY.fontFamily,
-});
-
-// ─── Search + Tabs ────────────────────────────────────────────────────────────
 
 export const SearchBarWrapper = styled(Box)({
-  padding: '10px 12px',
-  borderBottom: `1px solid ${COLORS.card.border}`,
-  backgroundColor: COLORS.card.bg,
+  padding: '14px 14px 10px',
 });
 
 export const SearchBarInner = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   gap: '8px',
-  backgroundColor: 'rgba(28,28,28,0.05)',
-  borderRadius: BORDER_RADIUS.input,
-  padding: '7px 12px',
-  '& svg': { fontSize: '16px', color: COLORS.text.muted, flexShrink: 0 },
+  border: '1px solid rgba(28,28,28,0.14)',
+  borderRadius: '8px',
+  padding: '8px 12px',
+  '& svg': { fontSize: '16px', color: 'rgba(28,28,28,0.4)', flexShrink: 0 },
 });
 
 export const SearchInput = styled('input')({
@@ -57,208 +52,333 @@ export const SearchInput = styled('input')({
   fontSize: '13px',
   fontFamily: TYPOGRAPHY.fontFamily,
   color: COLORS.text.primary,
-  '&::placeholder': { color: COLORS.text.muted },
+  '&::placeholder': { color: 'rgba(28,28,28,0.4)' },
 });
 
 export const TabsRow = styled(Box)({
   display: 'flex',
-  borderBottom: `1px solid ${COLORS.card.border}`,
-  backgroundColor: COLORS.card.bg,
+  alignItems: 'center',
+  borderBottom: '1px solid rgba(28,28,28,0.1)',
+  padding: '0 14px',
+  gap: '4px',
 });
 
 export const TabBtn = styled(Box)<{ active?: boolean }>(({ active }) => ({
-  flex: 1,
-  textAlign: 'center',
-  padding: '9px 0',
-  fontSize: '12px',
-  fontWeight: active ? 700 : 500,
-  color: active ? COLORS.text.primary : COLORS.text.muted,
+  padding: '8px 10px',
+  fontSize: '13px',
+  fontWeight: active ? 600 : 400,
+  color: active ? COLORS.text.primary : 'rgba(28,28,28,0.45)',
   fontFamily: TYPOGRAPHY.fontFamily,
   cursor: 'pointer',
   borderBottom: active ? `2px solid ${COLORS.text.primary}` : '2px solid transparent',
   marginBottom: '-1px',
-  transition: 'all 0.15s',
   userSelect: 'none',
+  whiteSpace: 'nowrap',
+  transition: 'color 0.15s',
   '&:hover': { color: COLORS.text.primary },
 }));
 
 export const ConversationListBody = styled(Box)({
   flex: 1,
   overflowY: 'auto',
-  '&::-webkit-scrollbar': { width: '6px' },
-  '&::-webkit-scrollbar-thumb': { background: '#D0D0D0', borderRadius: '3px' },
+  '&::-webkit-scrollbar': { width: '4px' },
+  '&::-webkit-scrollbar-thumb': { background: 'rgba(28,28,28,0.15)', borderRadius: '2px' },
 });
 
+// Conversation row
 export const ConversationItem = styled(Box)<{ active?: boolean }>(({ active }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 12,
-  padding: '14px 16px',
+  gap: '10px',
+  padding: '11px 14px',
   cursor: 'pointer',
-  borderBottom: `1px solid ${COLORS.card.border}`,
-  backgroundColor: active ? 'rgba(30,30,45,0.05)' : 'transparent',
-  '&:hover': { backgroundColor: 'rgba(30,30,45,0.04)' },
-  '&:last-child': { borderBottom: 'none' },
+  borderLeft: active ? '3px solid #7B61FF' : '3px solid transparent',
+  backgroundColor: active ? 'rgba(123,97,255,0.05)' : 'transparent',
+  transition: 'background-color 0.12s',
+  '&:hover': {
+    backgroundColor: active ? 'rgba(123,97,255,0.05)' : 'rgba(28,28,28,0.03)',
+  },
 }));
 
-export const ConvAvatar = styled(Avatar)<{ bgcolor: string }>(({ bgcolor }) => ({
-  width: 38,
-  height: 38,
-  backgroundColor: bgcolor,
-  fontSize: '13px',
-  fontWeight: 700,
+export const AvatarWrapper = styled(Box)({
+  position: 'relative',
   flexShrink: 0,
+});
+
+export const ConvAvatar = styled(Box)<{ bgcolor: string }>(({ bgcolor }) => ({
+  width: 42,
+  height: 42,
+  borderRadius: '50%',
+  backgroundColor: bgcolor,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '14px',
+  fontWeight: 700,
+  color: '#FFFFFF',
   fontFamily: TYPOGRAPHY.fontFamily,
+  flexShrink: 0,
+}));
+
+export const StatusDot = styled(Box)<{ status: 'online' | 'offline' | 'busy' }>(({ status }) => ({
+  position: 'absolute',
+  bottom: '1px',
+  right: '1px',
+  width: '10px',
+  height: '10px',
+  borderRadius: '50%',
+  backgroundColor:
+    status === 'online' ? '#22C55E' :
+    status === 'busy'   ? '#EF4444' :
+    '#9CA3AF',
+  border: '2px solid #FFFFFF',
 }));
 
 export const ConvInfo = styled(Box)({ flex: 1, minWidth: 0 });
+
+export const ConvTopRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '4px',
+  marginBottom: '3px',
+});
 
 export const ConvName = styled(Box)({
   fontSize: '13px',
   fontWeight: 600,
   color: COLORS.text.primary,
   fontFamily: TYPOGRAPHY.fontFamily,
-});
-
-export const ConvPreview = styled(Box)({
-  fontSize: '12px',
-  color: COLORS.text.secondary,
-  fontFamily: TYPOGRAPHY.fontFamily,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  marginTop: 2,
-});
-
-export const ConvMeta = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-end',
-  gap: 4,
-  flexShrink: 0,
 });
 
 export const ConvTime = styled(Box)({
   fontSize: '11px',
-  color: COLORS.text.muted,
+  color: 'rgba(28,28,28,0.4)',
   fontFamily: TYPOGRAPHY.fontFamily,
+  flexShrink: 0,
+});
+
+export const ConvBottomRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '4px',
+});
+
+export const ConvPreview = styled(Box)({
+  fontSize: '12px',
+  color: 'rgba(28,28,28,0.5)',
+  fontFamily: TYPOGRAPHY.fontFamily,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  flex: 1,
+  minWidth: 0,
 });
 
 export const UnreadBadge = styled(Box)({
-  width: 18,
-  height: 18,
-  borderRadius: 9,
-  backgroundColor: '#F44336',
+  minWidth: '20px',
+  height: '20px',
+  borderRadius: '10px',
+  backgroundColor: '#1E1B4B',
   color: '#FFFFFF',
   fontSize: '11px',
-  fontWeight: 600,
+  fontWeight: 700,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '0 5px',
   fontFamily: TYPOGRAPHY.fontFamily,
+  flexShrink: 0,
 });
 
-// Chat panel
+// ─── Chat panel ───────────────────────────────────────────────────────────────
+
 export const ChatPanel = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
+  backgroundColor: '#FFFFFF',
 });
 
 export const ChatHeader = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: 12,
+  gap: '12px',
   padding: '14px 20px',
-  borderBottom: `1px solid ${COLORS.card.border}`,
-  backgroundColor: COLORS.card.bg,
+  borderBottom: '1px solid rgba(28,28,28,0.08)',
   flexShrink: 0,
 });
 
+export const ChatHeaderAvatar = styled(Box)<{ bgcolor: string }>(({ bgcolor }) => ({
+  width: 44,
+  height: 44,
+  borderRadius: '50%',
+  backgroundColor: bgcolor,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '15px',
+  fontWeight: 700,
+  color: '#FFFFFF',
+  fontFamily: TYPOGRAPHY.fontFamily,
+  flexShrink: 0,
+}));
+
 export const ChatName = styled(Box)({
   fontSize: '15px',
-  fontWeight: 600,
+  fontWeight: 700,
   color: COLORS.text.primary,
   fontFamily: TYPOGRAPHY.fontFamily,
+  lineHeight: 1.3,
 });
 
-export const ChatProgramme = styled(Box)({
+export const ChatStatus = styled(Box)({
   fontSize: '12px',
-  color: COLORS.text.secondary,
+  color: 'rgba(28,28,28,0.45)',
   fontFamily: TYPOGRAPHY.fontFamily,
+  marginTop: '2px',
 });
 
 export const MessageList = styled(Box)({
   flex: 1,
   overflowY: 'auto',
-  padding: '20px',
+  padding: '16px 20px',
   display: 'flex',
   flexDirection: 'column',
-  gap: 16,
-  '&::-webkit-scrollbar': { width: '6px' },
-  '&::-webkit-scrollbar-thumb': { background: '#D0D0D0', borderRadius: '3px' },
+  gap: '6px',
+  '&::-webkit-scrollbar': { width: '4px' },
+  '&::-webkit-scrollbar-thumb': { background: 'rgba(28,28,28,0.15)', borderRadius: '2px' },
 });
 
-export const MessageBubble = styled(Box)<{ isFromTrainer: boolean }>(({ isFromTrainer }) => ({
+export const DateDivider = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  margin: '10px 0',
+  '&::before, &::after': {
+    content: '""',
+    flex: 1,
+    height: '1px',
+    backgroundColor: 'rgba(28,28,28,0.1)',
+  },
+});
+
+export const DateDividerText = styled(Box)({
+  fontSize: '12px',
+  color: 'rgba(28,28,28,0.4)',
+  fontFamily: TYPOGRAPHY.fontFamily,
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
+});
+
+export const SystemNote = styled(Box)({
+  fontSize: '12px',
+  color: 'rgba(28,28,28,0.4)',
+  fontFamily: TYPOGRAPHY.fontFamily,
+  textAlign: 'center',
+  margin: '2px 0 10px',
+});
+
+export const MessageBubble = styled(Box)<{ isFromMe: boolean }>(({ isFromMe }) => ({
   display: 'flex',
   flexDirection: 'column',
-  alignItems: isFromTrainer ? 'flex-end' : 'flex-start',
-  gap: 4,
-  maxWidth: '70%',
-  alignSelf: isFromTrainer ? 'flex-end' : 'flex-start',
+  alignItems: isFromMe ? 'flex-end' : 'flex-start',
+  alignSelf: isFromMe ? 'flex-end' : 'flex-start',
+  maxWidth: '72%',
+  gap: '3px',
 }));
 
-export const BubbleContent = styled(Box)<{ isFromTrainer: boolean }>(({ isFromTrainer }) => ({
+export const BubbleContent = styled(Box)<{ isFromMe: boolean }>(({ isFromMe }) => ({
   padding: '10px 14px',
-  borderRadius: isFromTrainer ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-  backgroundColor: isFromTrainer ? COLORS.sidebar.activeBg : '#F0F0F5',
-  color: isFromTrainer ? '#FFFFFF' : COLORS.text.primary,
+  borderRadius: isFromMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+  backgroundColor: isFromMe ? '#7B61FF' : '#F4F4F8',
+  color: isFromMe ? '#FFFFFF' : COLORS.text.primary,
   fontSize: '14px',
   lineHeight: 1.5,
   fontFamily: TYPOGRAPHY.fontFamily,
+  display: 'flex',
+  alignItems: 'flex-end',
+  gap: '8px',
+  flexWrap: 'wrap',
+  wordBreak: 'break-word',
 }));
 
-export const BubbleTime = styled(Box)({
+export const BubbleTime = styled(Box)<{ isFromMe: boolean }>(({ isFromMe }) => ({
   fontSize: '11px',
-  color: COLORS.text.muted,
+  color: isFromMe ? 'rgba(255,255,255,0.65)' : 'rgba(28,28,28,0.4)',
   fontFamily: TYPOGRAPHY.fontFamily,
-  padding: '0 4px',
-});
+  flexShrink: 0,
+  marginBottom: '1px',
+}));
 
-export const MessageInput = styled(Box)({
+// ─── Input bar ────────────────────────────────────────────────────────────────
+
+export const MessageInputBar = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: 12,
-  padding: '14px 20px',
-  borderTop: `1px solid ${COLORS.card.border}`,
-  backgroundColor: COLORS.card.bg,
+  gap: '8px',
+  padding: '12px 16px',
+  borderTop: '1px solid rgba(28,28,28,0.08)',
+  backgroundColor: '#FFFFFF',
   flexShrink: 0,
+});
+
+export const InputPlusBtn = styled(Box)({
+  width: '30px',
+  height: '30px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  color: 'rgba(28,28,28,0.45)',
+  flexShrink: 0,
+  borderRadius: '50%',
+  '&:hover': { backgroundColor: 'rgba(28,28,28,0.06)', color: 'rgba(28,28,28,0.7)' },
 });
 
 export const MessageTextField = styled(InputBase)({
   flex: 1,
-  backgroundColor: 'rgba(28,28,28,0.04)',
-  borderRadius: BORDER_RADIUS.input,
-  padding: '8px 14px',
+  border: '1px solid rgba(28,28,28,0.14)',
+  borderRadius: '22px',
+  padding: '8px 16px',
   fontSize: '14px',
   fontFamily: TYPOGRAPHY.fontFamily,
   color: COLORS.text.primary,
-
-  '& input::placeholder': { color: COLORS.text.muted, opacity: 1 },
+  backgroundColor: '#FAFAFA',
+  '& input::placeholder': { color: 'rgba(28,28,28,0.35)', opacity: 1 },
 });
 
-export const SendButton = styled(Button)({
-  height: 36,
-  padding: '0 18px',
-  fontSize: '13px',
-  fontWeight: 500,
-  textTransform: 'none',
-  borderRadius: BORDER_RADIUS.input,
-  backgroundColor: COLORS.button.blackBg,
+export const InputIconBtn = styled(Box)({
+  width: '30px',
+  height: '30px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  color: 'rgba(28,28,28,0.45)',
+  flexShrink: 0,
+  borderRadius: '50%',
+  '&:hover': { backgroundColor: 'rgba(28,28,28,0.06)', color: 'rgba(28,28,28,0.7)' },
+});
+
+export const SendButton = styled(Box)({
+  width: '34px',
+  height: '34px',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  backgroundColor: '#1C1C1C',
   color: '#FFFFFF',
-  fontFamily: TYPOGRAPHY.fontFamily,
-  '&:hover': { backgroundColor: '#2D2D3D' },
+  flexShrink: 0,
+  transition: 'background-color 0.15s',
+  '&:hover': { backgroundColor: 'rgba(28,28,28,0.8)' },
 });
 
 export const EmptyChat = styled(Box)({
@@ -267,8 +387,8 @@ export const EmptyChat = styled(Box)({
   alignItems: 'center',
   justifyContent: 'center',
   flexDirection: 'column',
-  gap: 8,
-  color: COLORS.text.muted,
+  gap: '10px',
+  color: 'rgba(28,28,28,0.35)',
   fontSize: '14px',
   fontFamily: TYPOGRAPHY.fontFamily,
 });

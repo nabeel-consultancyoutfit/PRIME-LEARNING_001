@@ -1,5 +1,6 @@
 /**
- * Messages Mock Service
+ * Trainer Messages Mock Service
+ * Pixel-perfect to Figma node 40000068:36425
  */
 
 export interface Message {
@@ -18,6 +19,8 @@ export interface Conversation {
   learnerName: string;
   learnerInitials: string;
   avatarColor: string;
+  status: 'online' | 'offline' | 'busy';
+  lastSeen: string;
   programme: string;
   lastMessage: string;
   lastMessageTime: string;
@@ -33,9 +36,11 @@ const MOCK_CONVERSATIONS: Conversation[] = [
     learnerName: 'Marcus Taylor',
     learnerInitials: 'MT',
     avatarColor: '#4A90D9',
+    status: 'online',
+    lastSeen: 'Active now',
     programme: 'Customer Service Specialist L3',
     lastMessage: 'Hi, can we reschedule my review meeting?',
-    lastMessageTime: '2 hours ago',
+    lastMessageTime: '2h ago',
     unreadCount: 3,
     isResolved: false,
     messages: [
@@ -45,7 +50,7 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         senderId: '4',
         senderName: 'Marcus Taylor',
         senderInitials: 'MT',
-        timestamp: '14 Mar 2025, 9:00 AM',
+        timestamp: '09:00',
         isFromTrainer: false,
       },
       {
@@ -54,7 +59,7 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         senderId: 'trainer',
         senderName: 'Sarah Thompson',
         senderInitials: 'ST',
-        timestamp: '14 Mar 2025, 9:15 AM',
+        timestamp: '09:15',
         isFromTrainer: true,
       },
       {
@@ -63,7 +68,7 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         senderId: '4',
         senderName: 'Marcus Taylor',
         senderInitials: 'MT',
-        timestamp: '15 Mar 2025, 2:00 PM',
+        timestamp: '14:00',
         isFromTrainer: false,
       },
     ],
@@ -74,27 +79,30 @@ const MOCK_CONVERSATIONS: Conversation[] = [
     learnerName: 'James Wilson',
     learnerInitials: 'JW',
     avatarColor: '#7B61FF',
+    status: 'offline',
+    lastSeen: 'Last seen 3h ago',
     programme: 'Team Leader / Supervisor L3',
     lastMessage: 'Thank you for the feedback on my journal entry!',
     lastMessageTime: 'Yesterday',
     unreadCount: 0,
+    isResolved: true,
     messages: [
       {
         id: 'm1',
-        content: 'I\'ve just reviewed your reflective account. Great work, James. I especially liked your analysis of the conflict resolution scenario.',
+        content: "I've just reviewed your reflective account. Great work, James. I especially liked your analysis of the conflict resolution scenario.",
         senderId: 'trainer',
         senderName: 'Sarah Thompson',
         senderInitials: 'ST',
-        timestamp: '13 Mar 2025, 3:30 PM',
+        timestamp: '15:30',
         isFromTrainer: true,
       },
       {
         id: 'm2',
-        content: 'Thank you for the feedback on my journal entry! I\'ll work on expanding the section about outcomes.',
+        content: "Thank you for the feedback on my journal entry! I'll work on expanding the section about outcomes.",
         senderId: '1',
         senderName: 'James Wilson',
         senderInitials: 'JW',
-        timestamp: '13 Mar 2025, 4:45 PM',
+        timestamp: '16:45',
         isFromTrainer: false,
       },
     ],
@@ -105,10 +113,13 @@ const MOCK_CONVERSATIONS: Conversation[] = [
     learnerName: 'Olivia Brown',
     learnerInitials: 'OB',
     avatarColor: '#F5A623',
+    status: 'busy',
+    lastSeen: 'Last seen 1h ago',
     programme: 'Retail Manager L4',
     lastMessage: 'I will try to submit the overdue task by end of week.',
     lastMessageTime: '2 days ago',
     unreadCount: 1,
+    isResolved: false,
     messages: [
       {
         id: 'm1',
@@ -116,16 +127,16 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         senderId: 'trainer',
         senderName: 'Sarah Thompson',
         senderInitials: 'ST',
-        timestamp: '14 Mar 2025, 10:00 AM',
+        timestamp: '10:00',
         isFromTrainer: true,
       },
       {
         id: 'm2',
-        content: 'Sorry about that. It\'s been a very busy month at the store. I will try to submit the overdue task by end of week.',
+        content: "Sorry about that. It's been a very busy month at the store. I will try to submit the overdue task by end of week.",
         senderId: '3',
         senderName: 'Olivia Brown',
         senderInitials: 'OB',
-        timestamp: '14 Mar 2025, 11:30 AM',
+        timestamp: '11:30',
         isFromTrainer: false,
       },
     ],
@@ -136,10 +147,13 @@ const MOCK_CONVERSATIONS: Conversation[] = [
     learnerName: 'Priya Patel',
     learnerInitials: 'PP',
     avatarColor: '#F44336',
+    status: 'online',
+    lastSeen: 'Active now',
     programme: 'Accounting / Finance L3',
     lastMessage: 'See you at the EPA prep session!',
     lastMessageTime: '3 days ago',
     unreadCount: 0,
+    isResolved: true,
     messages: [
       {
         id: 'm1',
@@ -147,7 +161,7 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         senderId: 'trainer',
         senderName: 'Sarah Thompson',
         senderInitials: 'ST',
-        timestamp: '12 Mar 2025, 9:00 AM',
+        timestamp: '09:00',
         isFromTrainer: true,
       },
       {
@@ -156,16 +170,16 @@ const MOCK_CONVERSATIONS: Conversation[] = [
         senderId: '5',
         senderName: 'Priya Patel',
         senderInitials: 'PP',
-        timestamp: '12 Mar 2025, 9:30 AM',
+        timestamp: '09:30',
         isFromTrainer: false,
       },
       {
         id: 'm3',
-        content: 'Perfect — let\'s say Thursday at 2pm. See you at the EPA prep session!',
+        content: "Perfect — let's say Thursday at 2pm. See you at the EPA prep session!",
         senderId: 'trainer',
         senderName: 'Sarah Thompson',
         senderInitials: 'ST',
-        timestamp: '12 Mar 2025, 9:45 AM',
+        timestamp: '09:45',
         isFromTrainer: true,
       },
     ],
