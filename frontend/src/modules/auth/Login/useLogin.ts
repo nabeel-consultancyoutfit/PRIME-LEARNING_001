@@ -1,21 +1,12 @@
-/**
- * Login form hook
- * Handles form logic, validation, and submission
- */
-
-import { useCallback, useMemo } from 'react';
+import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useRouter } from 'next/router';
+import { useAuth } from '@/context/AuthContext';
 import { LoginFormValues } from './Login.interface';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { loginUser } from '@/redux/slices/authSlice';
-import { LOGIN_VALIDATION_MESSAGES } from './Login.data';
+import { MOCK_USERS, ROLE_REDIRECT_MAP, LOGIN_VALIDATION_MESSAGES } from './Login.data';
 
-/**
- * Yup validation schema for login form
- */
 const loginValidationSchema = yup.object({
   email: yup
     .string()
@@ -23,66 +14,64 @@ const loginValidationSchema = yup.object({
     .email(LOGIN_VALIDATION_MESSAGES.email.invalid),
   password: yup
     .string()
-    .required(LOGIN_VALIDATION_MESSAGES.password.required)
-    .min(8, LOGIN_VALIDATION_MESSAGES.password.minLength),
-  rememberMe: yup.boolean().default(false),
+    .required(LOGIN_VALIDATION_MESSAGES.password.required),
 });
 
 export const useLogin = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const { loading, error } = useAppSelector((state) => state.auth);
+  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<LoginFormValues>({
     resolver: yupResolver(loginValidationSchema),
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
     },
   });
 
-  /**
-   * Handle form submission
-   */
-  const onSubmit: SubmitHandler<LoginFormValues> = useCallback(
-    async (data: LoginFormValues) => {
-      try {
-        const result = await dispatch(
-          loginUser({
-            email: data.email,
-            password: data.password,
-          })
-        ).unwrap();
+  const onSubmit: SubmitHandler<LoginFormValues> = (data) => {
+    setError(null);
+    setIsLoading(true);
 
-        // Store remember me preference if checked
-        if (data.rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
-          localStorage.setItem('rememberEmail', data.email);
-        }
+    const user = MOCK_USERS.find(
+      (u) => u.email === data.email && u.password === data.password
+    );
 
-        // Redirect to dashboard on successful login
-        router.push('/dashboard');
-      } catch (err) {
-        // Error is handled by Redux and displayed via useAppSelector
-        console.error('Login failed:', err);
-      }
-    },
-    [dispatch, router]
-  );
+    if (!user) {
+      setError('Invalid email or password. Try: alice@example.com / bob@example.com / carol@example.com (password: password123)');
+      setIsLoading(false);
+      return;
+    }
+
+    login({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+
+    router.push(ROLE_REDIRECT_MAP[user.role]);
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return {
     control,
     handleSubmit,
     errors,
     onSubmit,
-    isLoading: loading,
+    isLoading,
     error,
-    watch,
+    showPassword,
+    toggleShowPassword,
   };
 };

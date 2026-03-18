@@ -1,11 +1,10 @@
-import React, { useMemo, ReactNode } from 'react';
+import React, { useEffect, ReactNode } from 'react';
 import { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
-import { Provider } from 'react-redux';
-import { ThemeRegistry } from '@/theme';
-import MainLayout from '@/layout/MainLayout';
-import AuthLayout from '@/layout/AuthLayout';
-import { store } from '@/redux/store';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import GlobalStyles from '@mui/material/GlobalStyles';
+
+const PUBLIC_ROUTES = ['/auth/login'];
 
 interface PageWithLayout {
   getLayout?: (page: ReactNode) => ReactNode;
@@ -15,29 +14,45 @@ type AppPropsWithLayout = AppProps & {
   Component: React.ComponentType & PageWithLayout;
 };
 
-function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
-  // Determine which layout to use based on route
-  const getLayout = useMemo(() => {
-    // Auth routes use AuthLayout
-    if (router.pathname.startsWith('/auth')) {
-      return (page: ReactNode) => <AuthLayout>{page}</AuthLayout>;
+  const isPublicRoute = PUBLIC_ROUTES.includes(router.pathname);
+
+  useEffect(() => {
+    if (!isAuthenticated && !isPublicRoute) {
+      router.replace('/auth/login');
     }
+  }, [isAuthenticated, isPublicRoute, router]);
 
-    // All other routes use MainLayout
-    return (page: ReactNode) => <MainLayout>{page}</MainLayout>;
-  }, [router.pathname]);
+  if (!isAuthenticated && !isPublicRoute) {
+    return null;
+  }
 
-  // Allow individual pages to override the default layout
-  const layout = Component.getLayout || getLayout;
+  return <>{children}</>;
+}
+
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout || ((page: ReactNode) => page);
 
   return (
-    <Provider store={store}>
-      <ThemeRegistry>
-        {layout(<Component {...pageProps} />)}
-      </ThemeRegistry>
-    </Provider>
+    <AuthProvider>
+      <GlobalStyles
+        styles={{
+          '.no-scrollbar': {
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          },
+          '.no-scrollbar::-webkit-scrollbar': {
+            display: 'none',
+          },
+        }}
+      />
+      <AuthGuard>
+        {getLayout(<Component {...pageProps} />)}
+      </AuthGuard>
+    </AuthProvider>
   );
 }
 

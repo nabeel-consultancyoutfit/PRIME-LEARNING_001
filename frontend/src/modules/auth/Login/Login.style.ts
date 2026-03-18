@@ -1,79 +1,83 @@
-/**
- * Login module styled components
- */
-
 import { styled } from '@mui/material/styles';
-import { Box, Card } from '@mui/material';
+import { Box } from '@mui/material';
 
-export const LoginWrapper = styled(Box)(({ theme }) => ({
+export const LoginWrapper = styled(Box)(() => ({
   minHeight: '100vh',
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: theme.palette.background.default,
-  padding: theme.spacing(2),
+  background: 'linear-gradient(180deg, #d6eaf8 0%, #eaf6ff 40%, #ffffff 70%, #e8e8e8 85%, #d5d5d5 100%)',
+  backgroundSize: 'cover',
+  position: 'relative',
+  padding: 16,
 }));
 
-export const LoginCard = styled(Card)(({ theme }) => ({
-  maxWidth: 420,
+export const LogoWrapper = styled(Box)(() => ({
+  position: 'absolute',
+  top: 24,
+  left: 32,
+}));
+
+export const LoginCard = styled(Box)(() => ({
+  maxWidth: 460,
   width: '100%',
-  padding: theme.spacing(4),
-  boxShadow: theme.shadows[3],
-  borderRadius: theme.spacing(2),
-}));
-
-export const FormWrapper = styled(Box)(({ theme }) => ({
+  padding: '40px 48px',
+  borderRadius: 16,
+  background: 'linear-gradient(135deg, rgba(232, 248, 255, 0.85) 0%, rgba(255, 255, 255, 0.9) 100%)',
+  backdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255, 255, 255, 0.6)',
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
   display: 'flex',
   flexDirection: 'column',
-  gap: theme.spacing(2),
-  marginTop: theme.spacing(3),
+  alignItems: 'center',
 }));
 
-export const HeaderWrapper = styled(Box)(({ theme }) => ({
+export const IconBox = styled(Box)(() => ({
+  width: 48,
+  height: 48,
+  borderRadius: 8,
+  border: '1.5px solid #222',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: theme.spacing(1),
-  marginBottom: theme.spacing(2),
+  marginBottom: 20,
 }));
 
-export const AppTitle = styled('h1')(({ theme }) => ({
-  margin: 0,
-  fontSize: '1.75rem',
-  fontWeight: 700,
-  color: theme.palette.text.primary,
-  textAlign: 'center',
-}));
-
-export const FormFooter = styled(Box)(({ theme }) => ({
+export const FormWrapper = styled(Box)(() => ({
+  width: '100%',
   display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(2),
+  flexDirection: 'column',
+  gap: 16,
+  marginTop: 24,
 }));
 
-export const LinkWrapper = styled(Box)(({ theme }) => ({
-  textAlign: 'center',
-  marginTop: theme.spacing(3),
-  fontSize: '0.875rem',
+export const ForgotPasswordRow = styled(Box)(() => ({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  marginTop: -8,
 }));
 
-export const RegisterLink = styled('span')(({ theme }) => ({
-  color: theme.palette.primary.main,
-  cursor: 'pointer',
-  fontWeight: 600,
-  textDecoration: 'none',
-  '&:hover': {
-    textDecoration: 'underline',
-  },
+export const DividerLine = styled(Box)(() => ({
+  width: '100%',
+  height: 1,
+  backgroundColor: '#e0e0e0',
+  margin: '20px 0',
+}));
+
+export const SsoRow = styled(Box)(() => ({
+  display: 'flex',
+  gap: 12,
+  width: '100%',
+  justifyContent: 'center',
 }));
 
 export const ErrorMessage = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1.5),
-  backgroundColor: theme.palette.error.lighter || '#ffebee',
+  padding: '10px 16px',
+  backgroundColor: '#ffebee',
   color: theme.palette.error.main,
-  borderRadius: theme.spacing(1),
+  borderRadius: 8,
   fontSize: '0.875rem',
-  marginBottom: theme.spacing(2),
+  width: '100%',
+  textAlign: 'center',
 }));

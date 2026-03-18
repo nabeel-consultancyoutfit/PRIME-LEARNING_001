@@ -1,78 +1,78 @@
-/**
- * Login page component
- * Handles user authentication with email and password
- */
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
-  Box,
   TextField,
-  FormControlLabel,
-  Checkbox,
-  Link,
   Typography,
+  Button,
+  InputAdornment,
+  IconButton,
+  Link,
 } from '@mui/material';
+import {
+  LoginOutlined as LoginIcon,
+  PersonOutline as PersonIcon,
+  VpnKeyOutlined as KeyIcon,
+  VisibilityOffOutlined as VisibilityOffIcon,
+  VisibilityOutlined as VisibilityIcon,
+} from '@mui/icons-material';
 import { Controller } from 'react-hook-form';
-import { School as SchoolIcon } from '@mui/icons-material';
-import NextLink from 'next/link';
-import { PrimaryButton } from '@/components/Buttons';
 import {
   LoginWrapper,
+  LogoWrapper,
   LoginCard,
+  IconBox,
   FormWrapper,
-  HeaderWrapper,
-  AppTitle,
-  FormFooter,
-  LinkWrapper,
+  ForgotPasswordRow,
+  DividerLine,
+  SsoRow,
   ErrorMessage,
 } from './Login.style';
-import { LOGIN_FORM_LABELS } from './Login.data';
 import { useLogin } from './useLogin';
 
-/**
- * Login component
- */
-export const Login: React.FC = () => {
-  const { control, handleSubmit, errors, onSubmit, isLoading, error, watch } =
-    useLogin();
-
-  const rememberMe = watch('rememberMe');
-
-  /**
-   * Load remembered email on component mount
-   */
-  useEffect(() => {
-    const rememberMeStored = localStorage.getItem('rememberMe');
-    const rememberEmail = localStorage.getItem('rememberEmail');
-
-    if (rememberMeStored && rememberEmail) {
-      // This would require updating the form programmatically
-      // The default values in useLogin hook handle this
-    }
-  }, []);
+const Login: React.FC = () => {
+  const {
+    control,
+    handleSubmit,
+    errors,
+    onSubmit,
+    isLoading,
+    error,
+    showPassword,
+    toggleShowPassword,
+  } = useLogin();
 
   return (
     <LoginWrapper>
+      {/* Logo top-left */}
+      <LogoWrapper>
+        <img
+          src="/logo.png"
+          alt="Prime Learning Platform"
+          style={{ height: 72 }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
+        />
+      </LogoWrapper>
+
       <LoginCard>
-        {/* Header with icon and title */}
-        <HeaderWrapper>
-          <SchoolIcon
-            sx={{ fontSize: '2rem', color: 'primary.main' }}
-            data-testid="school-icon"
-          />
-        </HeaderWrapper>
+        {/* Sign-in icon */}
+        <IconBox>
+          <LoginIcon sx={{ fontSize: 24, color: '#222' }} />
+        </IconBox>
 
-        <AppTitle>{LOGIN_FORM_LABELS.submit === 'Sign In' ? 'Prime Learning Platform' : ''}</AppTitle>
+        {/* Heading */}
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 700, color: '#111', mb: 0.5 }}
+        >
+          Sign in with email
+        </Typography>
 
-        {/* Error message display */}
-        {error && (
-          <ErrorMessage role="alert" data-testid="error-message">
-            {error}
-          </ErrorMessage>
-        )}
+        {/* Error message */}
+        {error && <ErrorMessage sx={{ mt: 2 }}>{error}</ErrorMessage>}
 
-        {/* Login form */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
           <FormWrapper>
             {/* Email field */}
             <Controller
@@ -81,15 +81,26 @@ export const Login: React.FC = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label={LOGIN_FORM_LABELS.email}
+                  placeholder="Email address"
                   type="email"
                   variant="outlined"
                   fullWidth
+                  size="medium"
                   error={!!errors.email}
                   helperText={errors.email?.message}
                   disabled={isLoading}
-                  data-testid="email-input"
-                  autoComplete="email"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon sx={{ color: '#999' }} />
+                      </InputAdornment>
+                    ),
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: '8px',
+                      '& fieldset': { border: 'none' },
+                    },
+                  }}
                 />
               )}
             />
@@ -101,81 +112,125 @@ export const Login: React.FC = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label={LOGIN_FORM_LABELS.password}
-                  type="password"
+                  placeholder="Password"
+                  type={showPassword ? 'text' : 'password'}
                   variant="outlined"
                   fullWidth
+                  size="medium"
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   disabled={isLoading}
-                  data-testid="password-input"
-                  autoComplete="current-password"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <KeyIcon sx={{ color: '#999' }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={toggleShowPassword}
+                          edge="end"
+                          size="small"
+                        >
+                          {showPassword ? (
+                            <VisibilityIcon sx={{ color: '#999' }} />
+                          ) : (
+                            <VisibilityOffIcon sx={{ color: '#999' }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: '8px',
+                      '& fieldset': { border: 'none' },
+                    },
+                  }}
                 />
               )}
             />
 
-            {/* Remember me checkbox and forgot password link */}
-            <FormFooter>
-              <Controller
-                name="rememberMe"
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    {...field}
-                    control={<Checkbox disabled={isLoading} />}
-                    label={LOGIN_FORM_LABELS.rememberMe}
-                    data-testid="remember-me-checkbox"
-                  />
-                )}
-              />
+            {/* Forgot password */}
+            <ForgotPasswordRow>
+              <Link
+                href="#"
+                underline="hover"
+                sx={{ fontSize: '0.875rem', color: '#111', fontWeight: 500 }}
+                onClick={(e) => e.preventDefault()}
+              >
+                Forgot password?
+              </Link>
+            </ForgotPasswordRow>
 
-              <NextLink href="/auth/forgot-password" passHref legacyBehavior>
-                <Link
-                  component="a"
-                  underline="hover"
-                  sx={{ fontSize: '0.875rem' }}
-                  data-testid="forgot-password-link"
-                >
-                  {LOGIN_FORM_LABELS.forgotPassword}
-                </Link>
-              </NextLink>
-            </FormFooter>
-
-            {/* Submit button */}
-            <PrimaryButton
-              label={LOGIN_FORM_LABELS.submit}
+            {/* Login button */}
+            <Button
               type="submit"
+              variant="contained"
               fullWidth
-              loading={isLoading}
               disabled={isLoading}
-              size="large"
-              data-testid="login-submit-button"
-            />
+              sx={{
+                backgroundColor: '#111',
+                color: '#fff',
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: '1rem',
+                py: 1.4,
+                '&:hover': {
+                  backgroundColor: '#333',
+                },
+              }}
+            >
+              Login
+            </Button>
           </FormWrapper>
         </form>
 
-        {/* Register link */}
-        <LinkWrapper>
-          <Typography variant="body2">
-            {LOGIN_FORM_LABELS.noAccount}
-            <NextLink href="/auth/register" passHref legacyBehavior>
-              <Link
-                component="a"
-                sx={{
-                  color: 'primary.main',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-                data-testid="register-link"
-              >
-                {LOGIN_FORM_LABELS.register}
-              </Link>
-            </NextLink>
-          </Typography>
-        </LinkWrapper>
+        {/* Divider */}
+        <DividerLine />
+
+        {/* SSO buttons */}
+        <SsoRow>
+          <Button
+            variant="outlined"
+            startIcon={<KeyIcon sx={{ fontSize: 18 }} />}
+            sx={{
+              borderColor: '#ccc',
+              color: '#111',
+              textTransform: 'none',
+              fontWeight: 500,
+              borderRadius: '8px',
+              px: 3,
+              py: 1,
+              '&:hover': {
+                borderColor: '#999',
+                backgroundColor: '#fafafa',
+              },
+            }}
+          >
+            Sign in with SSO
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<KeyIcon sx={{ fontSize: 18 }} />}
+            sx={{
+              borderColor: '#ccc',
+              color: '#111',
+              textTransform: 'none',
+              fontWeight: 500,
+              borderRadius: '8px',
+              px: 3,
+              py: 1,
+              '&:hover': {
+                borderColor: '#999',
+                backgroundColor: '#fafafa',
+              },
+            }}
+          >
+            Sign in with Microsoft
+          </Button>
+        </SsoRow>
       </LoginCard>
     </LoginWrapper>
   );

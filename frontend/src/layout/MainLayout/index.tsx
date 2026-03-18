@@ -138,7 +138,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </Box>
       </S.DrawerHeader>
 
-      <Box sx={{ flex: 1, overflowY: 'auto', pb: 2 }}>
+      <Box sx={{ flex: 1, overflowY: 'hidden', pb: 2, }}>
         {/* Main Section */}
         <S.NavSection>
           {mainNavItems.map((item) => (
