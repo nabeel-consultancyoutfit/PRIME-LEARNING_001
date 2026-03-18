@@ -22,6 +22,7 @@ export interface Conversation {
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
+  isResolved: boolean;
   messages: Message[];
 }
 
@@ -36,6 +37,7 @@ const MOCK_CONVERSATIONS: Conversation[] = [
     lastMessage: 'Hi, can we reschedule my review meeting?',
     lastMessageTime: '2 hours ago',
     unreadCount: 3,
+    isResolved: false,
     messages: [
       {
         id: 'm1',

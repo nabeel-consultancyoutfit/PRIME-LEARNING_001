@@ -31,6 +31,57 @@ export const ConversationListHeader = styled(Box)({
   fontFamily: TYPOGRAPHY.fontFamily,
 });
 
+// ─── Search + Tabs ────────────────────────────────────────────────────────────
+
+export const SearchBarWrapper = styled(Box)({
+  padding: '10px 12px',
+  borderBottom: `1px solid ${COLORS.card.border}`,
+  backgroundColor: COLORS.card.bg,
+});
+
+export const SearchBarInner = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  backgroundColor: 'rgba(28,28,28,0.05)',
+  borderRadius: BORDER_RADIUS.input,
+  padding: '7px 12px',
+  '& svg': { fontSize: '16px', color: COLORS.text.muted, flexShrink: 0 },
+});
+
+export const SearchInput = styled('input')({
+  flex: 1,
+  border: 'none',
+  outline: 'none',
+  background: 'transparent',
+  fontSize: '13px',
+  fontFamily: TYPOGRAPHY.fontFamily,
+  color: COLORS.text.primary,
+  '&::placeholder': { color: COLORS.text.muted },
+});
+
+export const TabsRow = styled(Box)({
+  display: 'flex',
+  borderBottom: `1px solid ${COLORS.card.border}`,
+  backgroundColor: COLORS.card.bg,
+});
+
+export const TabBtn = styled(Box)<{ active?: boolean }>(({ active }) => ({
+  flex: 1,
+  textAlign: 'center',
+  padding: '9px 0',
+  fontSize: '12px',
+  fontWeight: active ? 700 : 500,
+  color: active ? COLORS.text.primary : COLORS.text.muted,
+  fontFamily: TYPOGRAPHY.fontFamily,
+  cursor: 'pointer',
+  borderBottom: active ? `2px solid ${COLORS.text.primary}` : '2px solid transparent',
+  marginBottom: '-1px',
+  transition: 'all 0.15s',
+  userSelect: 'none',
+  '&:hover': { color: COLORS.text.primary },
+}));
+
 export const ConversationListBody = styled(Box)({
   flex: 1,
   overflowY: 'auto',
