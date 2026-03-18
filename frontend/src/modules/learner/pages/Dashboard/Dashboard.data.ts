@@ -46,7 +46,7 @@ export const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
   {
     id: 'timesheet',
     label: 'Timesheet',
-    path: '/learner-dashboard/timesheet',
+    path: '/learner-dashboard/journals-timesheet',
     iconType: 'timesheet',
   },
   {

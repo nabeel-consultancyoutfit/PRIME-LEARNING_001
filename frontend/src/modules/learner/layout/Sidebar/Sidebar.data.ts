@@ -47,9 +47,9 @@ export const LEARNER_NAV_ITEMS: NavItem[] = [
     path: '/learner-dashboard/scorecard',
   },
   {
-    label: 'Classroom',
+    label: 'Courses',
     icon: CastForEducationOutlined,
-    path: '/learner-dashboard/classroom',
+    path: '/learner-dashboard/courses',
   },
   {
     label: 'Progress',
