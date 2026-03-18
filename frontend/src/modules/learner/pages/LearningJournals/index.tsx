@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import {
   Box,
   Checkbox,
@@ -90,7 +91,8 @@ const parseDate = (dateStr: string): TimelineEntryData => {
 };
 
 const LearningJournals: React.FC = () => {
-  const { state, toggleExpanded, toggleTimesheet, handleExport, handleFilters } = useLearningJournals();
+  const router = useRouter();
+  const { state, toggleExpanded, handleExport, handleFilters } = useLearningJournals();
   const [formData, setFormData] = useState<any>({});
 
   const handleFormChange = (field: string, value: any) => {
@@ -111,7 +113,7 @@ const LearningJournals: React.FC = () => {
         {/* Top Bar */}
         <TopBar>
           <TopBarLeft>
-            <ShowTimesheetButton onClick={toggleTimesheet}>Show Timesheet</ShowTimesheetButton>
+            <ShowTimesheetButton onClick={() => router.push('/learner-dashboard/journals-timesheet')}>Show Timesheet</ShowTimesheetButton>
           </TopBarLeft>
           <TopBarRight>
             <BarButton onClick={handleExport}>

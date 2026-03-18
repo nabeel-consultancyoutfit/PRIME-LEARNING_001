@@ -133,7 +133,9 @@ const LearnerFeedback: React.FC = () => {
           {/* Header */}
           <InstancesHeader>
             <InstancesTitle>Instances</InstancesTitle>
-            <CreateBtn>Create New Instances +</CreateBtn>
+            <CreateBtn onClick={() => router.push('/learner-dashboard/learner-feedback-create')}>
+              Create New Instances +
+            </CreateBtn>
           </InstancesHeader>
 
           {/* Filters */}
@@ -172,7 +174,9 @@ const LearnerFeedback: React.FC = () => {
                   <Checkbox type="checkbox" />
                 </Box>
                 <Box>
-                  <OpenBtn>Open</OpenBtn>
+                  <OpenBtn onClick={() => router.push('/learner-dashboard/learner-feedback-create')}>
+                    Open
+                  </OpenBtn>
                 </Box>
               </TableRow>
             ))}

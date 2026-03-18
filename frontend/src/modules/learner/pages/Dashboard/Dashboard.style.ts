@@ -366,55 +366,64 @@ export const LegendDot = styled(Box, {
   flexShrink: 0,
 }));
 
-// Calendar Section
-export const CalendarWrapper = styled(Box)(({ theme }) => ({
+// ─── Calendar Section — Pixel-perfect to Figma 40000068:34277 ───
+
+export const CalendarWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
-}));
+  gap: '0px',
+  cursor: 'pointer',
+});
 
-export const CalendarHeader = styled(Box)(({ theme }) => ({
+export const CalendarHeader = styled(Box)({
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-end',
   justifyContent: 'space-between',
-  marginBottom: '16px',
-}));
+  paddingBottom: '12px',
+  borderBottom: '1px solid rgba(28,28,28,0.1)',
+  marginBottom: '12px',
+});
 
-export const CalendarMonthDisplay = styled(Typography)(({ theme }) => ({
-  fontSize: TYPOGRAPHY.h6.fontSize,
+export const CalendarMonthDisplay = styled(Typography)({
+  fontSize: '20px',
   fontWeight: 700,
-  color: COLORS.text.primary,
-}));
+  color: '#1C1C1C',
+  fontFamily: "'Inter', sans-serif",
+  lineHeight: 1,
+});
 
-export const CalendarNavButton = styled(Box)(({ theme }) => ({
-  width: '24px',
-  height: '24px',
+export const CalendarNavButton = styled(Box)({
+  width: '28px',
+  height: '28px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   cursor: 'pointer',
-  fontSize: '18px',
-  color: COLORS.text.secondary,
-  userSelect: 'none',
-
+  color: 'rgba(28,28,28,0.45)',
+  borderRadius: '50%',
+  userSelect: 'none' as const,
   '&:hover': {
-    color: COLORS.text.primary,
+    color: '#1C1C1C',
+    backgroundColor: 'rgba(28,28,28,0.06)',
   },
-}));
+});
 
-export const CalendarGrid = styled(Box)(({ theme }) => ({
+export const CalendarGrid = styled(Box)({
   display: 'grid',
   gridTemplateColumns: 'repeat(7, 1fr)',
-  gap: '2px',
-}));
+  rowGap: '2px',
+  columnGap: '0px',
+});
 
-export const CalendarDayHeader = styled(Box)(({ theme }) => ({
-  padding: '4px 0',
-  textAlign: 'center',
-  fontSize: TYPOGRAPHY.caption.fontSize,
+export const CalendarDayHeader = styled(Box)({
+  padding: '2px 0',
+  textAlign: 'center' as const,
+  fontSize: '11px',
   fontWeight: 600,
-  color: COLORS.text.secondary,
-}));
+  color: 'rgba(28,28,28,0.45)',
+  fontFamily: "'Inter', sans-serif",
+  marginBottom: '4px',
+});
 
 export const CalendarDayCell = styled(Box, {
   shouldForwardProp: (prop) =>
@@ -422,37 +431,46 @@ export const CalendarDayCell = styled(Box, {
 })<{ isToday: boolean; hasEvent: boolean; isCurrentMonth: boolean; isHighlighted: boolean }>(
   ({ isToday, hasEvent, isCurrentMonth, isHighlighted }) => {
     let bgColor = 'transparent';
-    let textColor = COLORS.text.primary;
-    let borderRadius = '0';
+    let textColor = '#1C1C1C';
+    let borderRadius = '50%';
+    let fontWeight = 400;
 
     if (!isCurrentMonth) {
-      textColor = COLORS.text.secondary;
+      textColor = 'rgba(28,28,28,0.25)';
     } else if (isToday) {
-      bgColor = COLORS.calendar.todayBg;
+      bgColor = '#1C1C1C';
       textColor = '#FFFFFF';
-      borderRadius = '50%';
+      fontWeight = 700;
     } else if (hasEvent) {
-      bgColor = COLORS.calendar.eventBg;
+      bgColor = '#1C1C1C';
       textColor = '#FFFFFF';
-      borderRadius = '50%';
+      fontWeight = 700;
     } else if (isHighlighted) {
-      bgColor = COLORS.calendar.highlightBg;
-      textColor = '#2DB54A';
+      bgColor = 'rgba(28,28,28,0.08)';
+      textColor = '#1C1C1C';
+      borderRadius = '4px';
+      fontWeight = 500;
     }
 
     return {
-      padding: '4px 0',
+      width: '32px',
+      height: '32px',
+      margin: '0 auto',
       textAlign: 'center' as const,
-      fontSize: TYPOGRAPHY.body1.fontSize,
-      fontWeight: 500,
+      fontSize: '13px',
+      fontWeight,
       color: textColor,
       backgroundColor: bgColor,
-      borderRadius: borderRadius === '50%' ? '50%' : '4px',
+      borderRadius,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: '32px',
       cursor: 'pointer',
+      fontFamily: "'Inter', sans-serif",
+      transition: 'background-color 0.15s',
+      '&:hover': !isToday && !hasEvent ? {
+        backgroundColor: 'rgba(28,28,28,0.06)',
+      } : {},
     };
   }
 );

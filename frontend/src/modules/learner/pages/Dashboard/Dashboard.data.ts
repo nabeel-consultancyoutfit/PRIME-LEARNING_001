@@ -241,9 +241,9 @@ export const LEARNING_AIMS: LearningAimRow[] = [
 
 export const INFORMATION_OPTIONS: InformationOption[] = [
   {
-    id: 'learning-activities-1',
-    label: 'Learning Activities',
-    count: 2,
+    id: 'plan-of-activity',
+    label: 'Plan Of Activity/action',
+    count: 1,
   },
   {
     id: 'unit-summaries',
@@ -251,9 +251,9 @@ export const INFORMATION_OPTIONS: InformationOption[] = [
     count: 7,
   },
   {
-    id: 'learning-activities-2',
+    id: 'learning-activities',
     label: 'Learning Activities',
-    count: 0,
+    count: 2,
   },
   {
     id: 'progress-reviews',

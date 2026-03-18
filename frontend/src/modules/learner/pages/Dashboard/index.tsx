@@ -3,7 +3,7 @@
  * Learner module main dashboard - matches Figma design exactly
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
 import {
@@ -14,6 +14,8 @@ import {
   Assignment as ClipboardIcon,
   BarChart as BarChartIcon,
   ExpandMore as ExpandMoreIcon,
+  NavigateBefore as NavPrevIcon,
+  NavigateNext as NavNextIcon,
   // Quick-access chip icons — Figma node 233:19161
   DonutSmallOutlined as ActivityIcon,
   FileCopyOutlined as EvidenceIcon,
@@ -35,6 +37,7 @@ import LearnerLayout from '@/modules/learner/layout/LearnerLayout';
 import { COLORS } from '@/modules/learner/theme/tokens';
 import { useDashboard } from './useDashboard';
 import { TAB_QUICK_ACCESS } from './Dashboard.data';
+import InformationOptionsModal from '@/modules/learner/components/InformationOptionsModal';
 import {
   WelcomeBannerWrapper,
   WelcomeHeading,
@@ -265,6 +268,7 @@ const TabsAndTrainer: React.FC<TabsAndTrainerProps> = ({ activeTab, onTabChange 
  */
 const StatisticsSection: React.FC = () => {
   const { state, previousMonth, nextMonth } = useDashboard();
+  const router = useRouter();
   const totalProgress = 70;
 
   // Render Donut Chart SVG
@@ -332,14 +336,22 @@ const StatisticsSection: React.FC = () => {
       {/* Column 2: Calendar */}
       <StatCardWrapper>
         <StatLabel>Calendar</StatLabel>
-        <CalendarWrapper>
+        <CalendarWrapper onClick={() => router.push('/learner-dashboard/calendar')}>
           <CalendarHeader>
             <CalendarMonthDisplay>
               {MONTH_NAMES[state.calendarMonth]} {state.calendarYear}
             </CalendarMonthDisplay>
-            <Box sx={{ display: 'flex', gap: '4px' }}>
-              <CalendarNavButton onClick={previousMonth}>{'<'}</CalendarNavButton>
-              <CalendarNavButton onClick={nextMonth}>{'>'}</CalendarNavButton>
+            <Box sx={{ display: 'flex', gap: '2px' }}>
+              <CalendarNavButton
+                onClick={(e) => { e.stopPropagation(); previousMonth(); }}
+              >
+                <NavPrevIcon sx={{ fontSize: '18px' }} />
+              </CalendarNavButton>
+              <CalendarNavButton
+                onClick={(e) => { e.stopPropagation(); nextMonth(); }}
+              >
+                <NavNextIcon sx={{ fontSize: '18px' }} />
+              </CalendarNavButton>
             </Box>
           </CalendarHeader>
 
@@ -357,6 +369,7 @@ const StatisticsSection: React.FC = () => {
                 hasEvent={day.hasEvent}
                 isCurrentMonth={day.isCurrentMonth}
                 isHighlighted={day.isHighlighted}
+                onClick={(e) => { e.stopPropagation(); router.push('/learner-dashboard/calendar'); }}
               >
                 {day.date}
               </CalendarDayCell>
@@ -481,55 +494,80 @@ const WorkplaceBar: React.FC = () => {
  */
 const BottomSection: React.FC = () => {
   const { state } = useDashboard();
+  const [activeOptionId, setActiveOptionId] = useState<string | null>(null);
+  const [activeOptionCount, setActiveOptionCount] = useState<number>(0);
+
+  const handleOptionClick = (id: string, count: number) => {
+    setActiveOptionId(id);
+    setActiveOptionCount(count);
+  };
+
+  const handleModalClose = () => {
+    setActiveOptionId(null);
+    setActiveOptionCount(0);
+  };
 
   return (
-    <BottomSectionWrapper>
-      {/* Learning Aims Table */}
-      <LearningAimsTableWrapper>
-        <StyledTable>
-          <TableHead>
-            <TableRow>
-              <TableCell>Learning Aim</TableCell>
-              <TableCell align="center">Current Progress</TableCell>
-              <TableCell align="center">Target Progress</TableCell>
-              <TableCell align="center">Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {state.learningAims.map((aim) => (
-              <TableRow key={aim.id}>
-                <TableCell>{aim.name}</TableCell>
-                <TableCell align="center">{aim.currentProgress}%</TableCell>
-                <TableCell align="center">{aim.targetProgress}%</TableCell>
-                <TableCell align="center">
-                  <ActionChevron>
-                    <ExpandMoreIcon />
-                  </ActionChevron>
-                </TableCell>
+    <>
+      <BottomSectionWrapper>
+        {/* Learning Aims Table */}
+        <LearningAimsTableWrapper>
+          <StyledTable>
+            <TableHead>
+              <TableRow>
+                <TableCell>Learning Aim</TableCell>
+                <TableCell align="center">Current Progress</TableCell>
+                <TableCell align="center">Target Progress</TableCell>
+                <TableCell align="center">Action</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </StyledTable>
-      </LearningAimsTableWrapper>
+            </TableHead>
+            <TableBody>
+              {state.learningAims.map((aim) => (
+                <TableRow key={aim.id}>
+                  <TableCell>{aim.name}</TableCell>
+                  <TableCell align="center">{aim.currentProgress}%</TableCell>
+                  <TableCell align="center">{aim.targetProgress}%</TableCell>
+                  <TableCell align="center">
+                    <ActionChevron>
+                      <ExpandMoreIcon />
+                    </ActionChevron>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </StyledTable>
+        </LearningAimsTableWrapper>
 
-      {/* Information & Options List */}
-      <InformationOptionsWrapper>
-        <InformationOptionsTitle>Information & Options</InformationOptionsTitle>
-        <InformationOptionsList>
-          {state.informationOptions.map((option) => (
-            <InformationOptionItem key={option.id}>
-              <InformationOptionLabel>
-                <ArrowCircleRightIcon sx={{ fontSize: '18px' }} />
-                {option.label} ({option.count})
-              </InformationOptionLabel>
-              <InformationOptionChevron>
-                <ChevronRightIcon />
-              </InformationOptionChevron>
-            </InformationOptionItem>
-          ))}
-        </InformationOptionsList>
-      </InformationOptionsWrapper>
-    </BottomSectionWrapper>
+        {/* Information & Options List */}
+        <InformationOptionsWrapper>
+          <InformationOptionsTitle>Information & Options</InformationOptionsTitle>
+          <InformationOptionsList>
+            {state.informationOptions.map((option) => (
+              <InformationOptionItem
+                key={option.id}
+                onClick={() => handleOptionClick(option.id, option.count)}
+                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'rgba(28,28,28,0.04)' } }}
+              >
+                <InformationOptionLabel>
+                  <ArrowCircleRightIcon sx={{ fontSize: '18px' }} />
+                  {option.label} ({option.count})
+                </InformationOptionLabel>
+                <InformationOptionChevron>
+                  <ChevronRightIcon />
+                </InformationOptionChevron>
+              </InformationOptionItem>
+            ))}
+          </InformationOptionsList>
+        </InformationOptionsWrapper>
+      </BottomSectionWrapper>
+
+      {/* Modal */}
+      <InformationOptionsModal
+        optionId={activeOptionId}
+        count={activeOptionCount}
+        onClose={handleModalClose}
+      />
+    </>
   );
 };
 

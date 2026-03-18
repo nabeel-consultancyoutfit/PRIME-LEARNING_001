@@ -130,7 +130,9 @@ const ExitReview: React.FC = () => {
         <Card>
           <InstancesHeader>
             <InstancesTitle>Instances</InstancesTitle>
-            <CreateBtn>Create New Instances +</CreateBtn>
+            <CreateBtn onClick={() => router.push('/learner-dashboard/exit-review-create')}>
+              Create New Instances +
+            </CreateBtn>
           </InstancesHeader>
 
           <FiltersRow>
@@ -167,7 +169,9 @@ const ExitReview: React.FC = () => {
                   <Checkbox type="checkbox" />
                 </Box>
                 <Box>
-                  <OpenBtn>Open</OpenBtn>
+                  <OpenBtn onClick={() => router.push('/learner-dashboard/exit-review-create')}>
+                    Open
+                  </OpenBtn>
                 </Box>
               </TableRow>
             ))}

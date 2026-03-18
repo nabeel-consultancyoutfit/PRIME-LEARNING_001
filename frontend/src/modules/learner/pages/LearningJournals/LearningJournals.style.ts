@@ -29,14 +29,14 @@ export const TopBarRight = styled(Box)({
 });
 
 export const ShowTimesheetButton = styled(Button)({
-  padding: '8px 16px',
+  padding: '8px 20px',
   fontSize: '14px',
-  fontWeight: 500,
+  fontWeight: 600,
   textTransform: 'none',
-  backgroundColor: 'transparent',
-  color: COLORS.button.blackBg,
-  border: `1px solid ${COLORS.button.blackBg}`,
-  borderRadius: '20px',
+  backgroundColor: '#1C1C1C',
+  color: '#FFFFFF',
+  border: 'none',
+  borderRadius: '8px',
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
@@ -44,7 +44,7 @@ export const ShowTimesheetButton = styled(Button)({
   fontFamily: TYPOGRAPHY.fontFamily,
 
   '&:hover': {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'rgba(28,28,28,0.85)',
   },
 });
 
