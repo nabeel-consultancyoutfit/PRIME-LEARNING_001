@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { DynamicFormProps, DynamicFieldConfig } from './DynamicForm.interface';
 
-export const DynamicForm: React.FC<DynamicFormProps> = ({
+export const DynamicForm = <TValues extends Record<string, any> = Record<string, any>>({
   fields,
   onSubmit,
   initialValues = {},
@@ -26,11 +26,13 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   cancelLabel = 'Cancel',
   loading = false,
   onCancel,
-}) => {
+}: DynamicFormProps<TValues>) => {
+  // NOTE: the component is generic in the `.interface.ts`.
+  // We keep runtime behavior the same and cast types where `field.name` is dynamic.
   const defaultValues = React.useMemo(() => {
     const values: Record<string, any> = {};
     fields.forEach((field) => {
-      values[field.name] = initialValues[field.name] ?? field.defaultValue ?? '';
+      values[field.name] = (initialValues as Record<string, any>)[field.name] ?? field.defaultValue ?? '';
     });
     return values;
   }, [fields, initialValues]);
@@ -39,17 +41,17 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<TValues>({
     resolver: validationSchema ? yupResolver(validationSchema) : undefined,
-    defaultValues,
+    defaultValues: defaultValues as any,
   });
 
   const renderField = (field: DynamicFieldConfig) => {
     const commonProps = {
       fullWidth: true,
       disabled: loading || field.disabled,
-      error: !!errors[field.name],
-      helperText: (errors[field.name]?.message as string) || field.helperText,
+      error: !!(errors as any)[field.name],
+      helperText: ((errors as any)[field.name]?.message as string) || field.helperText,
     };
 
     switch (field.type) {
@@ -58,7 +60,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'password':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
               <TextField
@@ -75,7 +77,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'number':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
               <TextField
@@ -84,6 +86,11 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                 type="number"
                 label={field.label}
                 placeholder={field.placeholder}
+                inputProps={{
+                  min: field.min,
+                  max: field.max,
+                  step: field.step,
+                }}
               />
             )}
           />
@@ -92,7 +99,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'date':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
               <TextField
@@ -109,10 +116,14 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'select':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
-              <FormControl fullWidth error={!!errors[field.name]} disabled={loading || field.disabled}>
+              <FormControl
+                fullWidth
+                error={!!(errors as any)[field.name]}
+                disabled={loading || field.disabled}
+              >
                 <InputLabel>{field.label}</InputLabel>
                 <Select {...fieldProps} label={field.label}>
                   <MenuItem value="">
@@ -124,8 +135,8 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                     </MenuItem>
                   ))}
                 </Select>
-                {errors[field.name] && (
-                  <FormHelperText>{errors[field.name]?.message as string}</FormHelperText>
+                {(errors as any)[field.name] && (
+                  <FormHelperText>{(errors as any)[field.name]?.message as string}</FormHelperText>
                 )}
               </FormControl>
             )}
@@ -135,10 +146,14 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'multiselect':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
-              <FormControl fullWidth error={!!errors[field.name]} disabled={loading || field.disabled}>
+              <FormControl
+                fullWidth
+                error={!!(errors as any)[field.name]}
+                disabled={loading || field.disabled}
+              >
                 <InputLabel>{field.label}</InputLabel>
                 <Select
                   {...fieldProps}
@@ -152,8 +167,8 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                     </MenuItem>
                   ))}
                 </Select>
-                {errors[field.name] && (
-                  <FormHelperText>{errors[field.name]?.message as string}</FormHelperText>
+                {(errors as any)[field.name] && (
+                  <FormHelperText>{(errors as any)[field.name]?.message as string}</FormHelperText>
                 )}
               </FormControl>
             )}
@@ -163,7 +178,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'textarea':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
               <TextField
@@ -171,8 +186,8 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                 {...commonProps}
                 label={field.label}
                 placeholder={field.placeholder}
-                multiline
-                rows={4}
+                multiline={field.multiline ?? true}
+                rows={field.rows ?? 4}
               />
             )}
           />
@@ -181,7 +196,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'checkbox':
         return (
           <Controller
-            name={field.name}
+            name={field.name as any}
             control={control}
             render={({ field: fieldProps }) => (
               <FormControlLabel

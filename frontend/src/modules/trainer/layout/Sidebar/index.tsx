@@ -5,8 +5,6 @@ import {
   SidebarContainer,
   LogoArea,
   LogoBox,
-  LogoText,
-  LogoSubtext,
   CollapseButton,
   NavListContainer,
   NavListItem,
@@ -17,6 +15,7 @@ import {
   AskAnythingItem,
 } from './Sidebar.style';
 import { TRAINER_NAV_ITEMS, ASK_ANYTHING } from './Sidebar.data';
+import PrimeLogo from '@/components/PrimeLogo';
 
 interface SidebarProps {
   onToggle?: () => void;
@@ -41,8 +40,7 @@ const TrainerSidebar: React.FC<SidebarProps> = ({ onToggle }) => {
       {/* Logo */}
       <LogoArea>
         <LogoBox>
-          <LogoText>Prime</LogoText>
-          <LogoSubtext>Learning Platform</LogoSubtext>
+          <PrimeLogo width={96} height={53} />
         </LogoBox>
         <CollapseButton size="small" onClick={onToggle} title="Toggle sidebar">
           <MenuIcon fontSize="small" />

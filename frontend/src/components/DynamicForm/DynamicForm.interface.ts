@@ -1,4 +1,4 @@
-import { Schema } from 'yup';
+import { AnyObjectSchema, Schema } from 'yup';
 
 export type FieldType = 'text' | 'email' | 'password' | 'number' | 'date' | 'select' | 'multiselect' | 'textarea' | 'checkbox';
 
@@ -19,13 +19,21 @@ export interface DynamicFieldConfig {
   defaultValue?: any;
   disabled?: boolean;
   helperText?: string;
+  // Optional UI hints used by some field configurations
+  multiline?: boolean;
+  rows?: number;
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
-export interface DynamicFormProps {
+export interface DynamicFormProps<TValues extends Record<string, any> = Record<string, any>> {
   fields: DynamicFieldConfig[];
-  onSubmit: (data: Record<string, any>) => void | Promise<void>;
-  initialValues?: Record<string, any>;
-  validationSchema?: Schema<any>;
+  onSubmit: (data: TValues) => void | Promise<void>;
+  initialValues?: Partial<TValues>;
+  // `yupResolver` from `@hookform/resolvers/yup` expects an object schema
+  // (or `Lazy`) rather than a generic `Schema`.
+  validationSchema?: AnyObjectSchema;
   submitLabel?: string;
   cancelLabel?: string;
   loading?: boolean;

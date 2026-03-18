@@ -29,15 +29,11 @@ export const LogoArea = styled(Box)({
 });
 
 export const LogoBox = styled(Box)({
-  border: `1px solid ${COLORS.sidebar.inactiveText}`,
-  borderRadius: BORDER_RADIUS.small,
-  padding: 12,
   display: 'flex',
-  flexDirection: 'column',
   alignItems: 'center',
   flex: 1,
-  backgroundColor: COLORS.card.bg,
-  gap: 4,
+  padding: '4px 0',
+  color: COLORS.sidebar.inactiveText,
 });
 
 export const LogoText = styled(Typography)({
