@@ -1,92 +1,17 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { ChevronRight, MenuOutlined as MenuIcon } from '@mui/icons-material';
-import {
-  SidebarContainer,
-  LogoArea,
-  LogoBox,
-  CollapseButton,
-  NavListContainer,
-  NavListItem,
-  NavListItemIcon,
-  NavListItemText,
-  SubmenuChevron,
-  BottomNavContainer,
-  AskAnythingItem,
-} from './Sidebar.style';
+import React from 'react';
+import AppSidebar from '@/components/AppSidebar';
 import { LEARNER_NAV_ITEMS, ASK_ANYTHING } from './Sidebar.data';
-import PrimeLogo from '@/components/PrimeLogo';
 
 interface SidebarProps {
   onToggle?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => {
-  const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const handleToggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-    onToggle?.();
-  };
-
-  const handleNavigation = (path: string) => {
-    router.push(path);
-  };
-
-  const isActiveItem = (path: string): boolean => {
-    return router.pathname === path || router.pathname.startsWith(path);
-  };
-
-  return (
-    <SidebarContainer>
-      {/* Logo Area */}
-      <LogoArea>
-        <LogoBox>
-          <PrimeLogo width={96} height={53} />
-        </LogoBox>
-        <CollapseButton size="small" onClick={handleToggleCollapse} title="Toggle sidebar">
-          <MenuIcon fontSize="small" />
-        </CollapseButton>
-      </LogoArea>
-
-      {/* Main Navigation Items */}
-      <NavListContainer>
-        {LEARNER_NAV_ITEMS.map((item) => {
-          const IconComponent = item.icon;
-          const isActive = isActiveItem(item.path);
-
-          return (
-            <NavListItem
-              key={item.path}
-              className={isActive ? 'active' : ''}
-              onClick={() => handleNavigation(item.path)}
-            >
-              <NavListItemIcon>
-                <IconComponent fontSize="small" />
-              </NavListItemIcon>
-              <NavListItemText primary={item.label} />
-              {item.hasSubmenu && (
-                <SubmenuChevron>
-                  <ChevronRight fontSize="small" />
-                </SubmenuChevron>
-              )}
-            </NavListItem>
-          );
-        })}
-      </NavListContainer>
-
-      {/* Bottom Ask Anything Section */}
-      <BottomNavContainer>
-        <AskAnythingItem onClick={() => handleNavigation(ASK_ANYTHING.path)}>
-          <NavListItemIcon>
-            {React.createElement(ASK_ANYTHING.icon, { fontSize: 'small' })}
-          </NavListItemIcon>
-          <NavListItemText primary={ASK_ANYTHING.label} />
-        </AskAnythingItem>
-      </BottomNavContainer>
-    </SidebarContainer>
-  );
-};
+const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => (
+  <AppSidebar
+    navItems={LEARNER_NAV_ITEMS}
+    askAnythingItem={ASK_ANYTHING}
+    onToggle={onToggle}
+  />
+);
 
 export default Sidebar;

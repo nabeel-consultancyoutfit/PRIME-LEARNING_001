@@ -25,7 +25,8 @@ export const LayoutContentWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   height: '100vh',
-  overflow: 'hidden',
+  // Must allow header's absolutely-positioned profile menu to render outside its bounds.
+  overflow: 'visible',
   backgroundColor: COLORS.contentArea.bg,
 }));
 

@@ -3,9 +3,10 @@
  * Nodes: 2010:2035 (overview) | 230:15992 (trainer expanded) | 526:36687 (learner expanded) | 2010:2682 (forms)
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Checkbox, FormControlLabel } from '@mui/material';
+import { learnersService, Learner } from '@/modules/trainer/services/learners.service';
 import {
   KeyboardArrowDown,
   KeyboardArrowUp,
@@ -17,6 +18,7 @@ import {
   InsertDriveFileOutlined,
 } from '@mui/icons-material';
 import TrainerLayout from '@/modules/trainer/layout/TrainerLayout';
+import LearnerDashboardContent from '@/modules/learner/pages/Dashboard/LearnerDashboardContent';
 import {
   PageContainer,
   ActivitySection,
@@ -205,6 +207,20 @@ const TrainerDashboard: React.FC = () => {
   const [formsOpen, setFormsOpen] = useState(false);
   const [showMyLearners, setShowMyLearners] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [showPortfolio, setShowPortfolio] = useState(false);
+  const [learners, setLearners] = useState<Learner[]>([]);
+  const [loadingLearners, setLoadingLearners] = useState(false);
+  const [selectedLearner, setSelectedLearner] = useState<Learner | null>(null);
+
+  useEffect(() => {
+    if (showPortfolio && learners.length === 0) {
+      setLoadingLearners(true);
+      learnersService.getAll().then((data) => {
+        setLearners(data);
+        setLoadingLearners(false);
+      });
+    }
+  }, [showPortfolio]);
 
   return (
     <TrainerLayout pageTitle="Dashboard">
@@ -225,11 +241,202 @@ const TrainerDashboard: React.FC = () => {
               Search a learner
             </LearnerSearchBox>
           </ActivityFiltersRow>
-          <ViewPortfolioButton>
-            View Portfolio
+          <ViewPortfolioButton
+            onClick={() => {
+              setShowPortfolio((prev) => {
+                if (prev) setSelectedLearner(null); // reset on close
+                return !prev;
+              });
+            }}
+          >
+            {showPortfolio ? 'Close Portfolio' : 'View Portfolio'}
             <ArrowForward sx={{ fontSize: '14px' }} />
           </ViewPortfolioButton>
         </ActivitySection>
+
+        {/* ── Learner Portfolio flow ── */}
+        {showPortfolio && (
+          <Box sx={{ mt: 2 }}>
+            {/* Step 1 — loading */}
+            {loadingLearners && (
+              <Box sx={{ py: 4, textAlign: 'center', fontSize: '13px', color: COLORS.text.muted, fontFamily: TYPOGRAPHY.fontFamily }}>
+                Loading learners…
+              </Box>
+            )}
+
+            {/* Step 2 — learner selector */}
+            {!loadingLearners && !selectedLearner && (
+              <Box>
+                <Box sx={{ fontSize: '14px', fontWeight: 600, color: COLORS.text.primary, fontFamily: TYPOGRAPHY.fontFamily, mb: 2 }}>
+                  Select a learner to view their portfolio
+                </Box>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                    gap: 2,
+                  }}
+                >
+                  {learners.map((learner) => (
+                    <Box
+                      key={learner.id}
+                      onClick={() => setSelectedLearner(learner)}
+                      sx={{
+                        border: '1px solid rgba(28,28,28,0.12)',
+                        borderRadius: '10px',
+                        p: 2,
+                        cursor: 'pointer',
+                        backgroundColor: '#FAFAFA',
+                        transition: 'all 0.15s',
+                        '&:hover': {
+                          backgroundColor: '#F0EFFE',
+                          borderColor: '#7B61FF',
+                          boxShadow: '0 2px 8px rgba(123,97,255,0.15)',
+                        },
+                      }}
+                    >
+                      {/* Avatar + name row */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', mb: 1.5 }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            backgroundColor: learner.avatarColor,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#FFF',
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            fontFamily: TYPOGRAPHY.fontFamily,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {learner.initials}
+                        </Box>
+                        <Box>
+                          <Box sx={{ fontSize: '13px', fontWeight: 600, color: COLORS.text.primary, fontFamily: TYPOGRAPHY.fontFamily }}>
+                            {learner.name}
+                          </Box>
+                          <Box sx={{ fontSize: '11px', color: COLORS.text.muted, fontFamily: TYPOGRAPHY.fontFamily }}>
+                            {learner.employer}
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Programme */}
+                      <Box sx={{ fontSize: '11px', color: COLORS.text.secondary, fontFamily: TYPOGRAPHY.fontFamily, mb: 1.5, lineHeight: 1.4 }}>
+                        {learner.programme}
+                      </Box>
+
+                      {/* Progress bar */}
+                      <Box sx={{ mb: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '4px' }}>
+                          <Box sx={{ fontSize: '10px', color: COLORS.text.muted, fontFamily: TYPOGRAPHY.fontFamily }}>Progress</Box>
+                          <Box sx={{ fontSize: '10px', fontWeight: 600, color: COLORS.text.primary, fontFamily: TYPOGRAPHY.fontFamily }}>
+                            {learner.progressPercent}%
+                          </Box>
+                        </Box>
+                        <Box sx={{ height: '5px', borderRadius: '3px', backgroundColor: '#E8E8E8', overflow: 'hidden' }}>
+                          <Box sx={{ height: '100%', width: `${learner.progressPercent}%`, borderRadius: '3px', backgroundColor: learner.avatarColor }} />
+                        </Box>
+                      </Box>
+
+                      {/* Status badge */}
+                      <Box
+                        sx={{
+                          display: 'inline-block',
+                          backgroundColor:
+                            learner.status === 'On Track' ? '#E8F5E9'
+                              : learner.status === 'Behind' ? '#FFF3E0'
+                              : '#FFEBEE',
+                          color:
+                            learner.status === 'On Track' ? '#43A047'
+                              : learner.status === 'Behind' ? '#FB8C00'
+                              : '#E53935',
+                          px: 1.5,
+                          py: '3px',
+                          borderRadius: '12px',
+                          fontSize: '10px',
+                          fontWeight: 600,
+                          fontFamily: TYPOGRAPHY.fontFamily,
+                        }}
+                      >
+                        {learner.status}
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* Step 3 — selected learner dashboard */}
+            {!loadingLearners && selectedLearner && (
+              <Box>
+                {/* Selected learner header + change button */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 2,
+                    p: '10px 14px',
+                    backgroundColor: '#F5F5F5',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Box
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        backgroundColor: selectedLearner.avatarColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#FFF',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        fontFamily: TYPOGRAPHY.fontFamily,
+                      }}
+                    >
+                      {selectedLearner.initials}
+                    </Box>
+                    <Box>
+                      <Box sx={{ fontSize: '13px', fontWeight: 600, color: COLORS.text.primary, fontFamily: TYPOGRAPHY.fontFamily }}>
+                        {selectedLearner.name}
+                      </Box>
+                      <Box sx={{ fontSize: '11px', color: COLORS.text.muted, fontFamily: TYPOGRAPHY.fontFamily }}>
+                        {selectedLearner.programme} · {selectedLearner.employer}
+                      </Box>
+                    </Box>
+                  </Box>
+                  <Box
+                    onClick={() => setSelectedLearner(null)}
+                    sx={{
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: '#7B61FF',
+                      fontFamily: TYPOGRAPHY.fontFamily,
+                      cursor: 'pointer',
+                      border: '1px solid #7B61FF',
+                      borderRadius: '6px',
+                      px: 1.5,
+                      py: '5px',
+                      '&:hover': { backgroundColor: '#F0EFFE' },
+                    }}
+                  >
+                    Change Learner
+                  </Box>
+                </Box>
+
+                <LearnerDashboardContent />
+              </Box>
+            )}
+          </Box>
+        )}
 
         {/* ── Trainer's Dashboard (accordion) ── */}
         <AccordionSection>

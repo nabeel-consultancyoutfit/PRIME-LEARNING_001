@@ -25,26 +25,30 @@ export const LayoutContentWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   height: '100vh',
-  overflow: 'hidden',
+  // Must allow header's absolutely-positioned profile menu to render outside its bounds.
+  overflow: 'visible',
   backgroundColor: COLORS.contentArea.bg,
 });
 
 export const LayoutHeaderWrapper = styled(Box)({
   flex: `0 0 ${SPACING.header.height}px`,
   height: SPACING.header.height,
-  overflowX: 'hidden',
+  // Allow the profile dropdown to render outside header bounds.
+  overflow: 'visible',
   borderBottom: `1px solid ${COLORS.header.borderColor}`,
   backgroundColor: COLORS.header.bg,
 });
 
-export const LayoutPageContent = styled(Box)({
+export const LayoutPageContent = styled(Box)(({ theme }) => ({
   flex: 1,
   overflowY: 'auto',
   overflowX: 'hidden',
   scrollbarWidth: 'none',
   msOverflowStyle: 'none',
-  padding: 0,
+  padding: SPACING.contentPadding,
   backgroundColor: COLORS.contentArea.bg,
 
-  '&::-webkit-scrollbar': { display: 'none' },
-});
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+}));
