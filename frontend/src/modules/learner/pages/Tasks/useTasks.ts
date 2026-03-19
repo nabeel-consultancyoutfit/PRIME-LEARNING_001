@@ -3,6 +3,7 @@
  */
 
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import { TasksState } from './Tasks.interface';
 import { MOCK_TASKS } from './Tasks.data';
 
@@ -13,6 +14,7 @@ const initialState: TasksState = {
 };
 
 export const useTasks = () => {
+  const router = useRouter();
   const [state, setState] = useState<TasksState>(initialState);
 
   const setPeriodFilter = (value: string) => {
@@ -24,8 +26,7 @@ export const useTasks = () => {
   };
 
   const handleMoreDetails = (taskId: string) => {
-    // TODO: Navigate to task details page
-    console.log('View details for task:', taskId);
+    router.push(`/learner-dashboard/tasks/${taskId}`);
   };
 
   return {

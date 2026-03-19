@@ -67,7 +67,7 @@ const Tasks: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Date Set</TableCell>
-                <TableCell>Task Description</TableCell>
+                <TableCell>Task</TableCell>
                 <TableCell>Date Due</TableCell>
                 <TableCell>Date Completed</TableCell>
                 <TableCell>Status</TableCell>
@@ -78,7 +78,12 @@ const Tasks: React.FC = () => {
               {state.tasks.map((task) => (
                 <TableRow key={task.id}>
                   <TableCell>{task.dateSet}</TableCell>
-                  <TableCell>{task.description}</TableCell>
+                  <TableCell
+                    sx={{ cursor: 'pointer', color: '#4A7FD6', '&:hover': { textDecoration: 'underline' } }}
+                    onClick={() => handleMoreDetails(task.id)}
+                  >
+                    {task.description}
+                  </TableCell>
                   <TableCell>{task.dateDue}</TableCell>
                   <TableCell>{task.dateCompleted || '—'}</TableCell>
                   <TableCell>

@@ -2,7 +2,7 @@
  * Mock data for Tasks module
  */
 
-import { TaskRow, TasksFilterOptions } from './Tasks.interface';
+import { TaskRow, TaskDetail, TasksFilterOptions } from './Tasks.interface';
 
 export const MOCK_TASKS: TaskRow[] = [
   {
@@ -47,6 +47,119 @@ export const MOCK_TASKS: TaskRow[] = [
   },
 ];
 
+export const MOCK_TASK_DETAILS: Record<string, TaskDetail> = {
+  '1': {
+    id: '1',
+    title: 'Complete learning plan review',
+    subtitle: 'Review and update your personal learning plan with your trainer',
+    isTrainerAssigned: true,
+    primaryMethod: 'Assignment',
+    date: '19/12/2024',
+    reference: 'LPR1',
+    secondaryMethods: ['Assignment', 'Observation', 'Questions'],
+    assessmentCriteria: [
+      { code: '[1a]', label: 'Identify learning objectives' },
+      { code: '[1b]', label: 'Review current progress against targets' },
+    ],
+    skillTags: ['[Unit 01] Skills', 'Communication'],
+    associatedResources: [],
+    evidence: '',
+    feedbackComments: '',
+    dateSet: '19/12/2024 01:59',
+    dateDue: '15/02/2025',
+    dateCompleted: null,
+    status: 'In Progress',
+  },
+  '2': {
+    id: '2',
+    title: 'Submit evidence of training activity',
+    subtitle: 'Upload and submit supporting evidence for your training activity',
+    isTrainerAssigned: true,
+    primaryMethod: 'Assignment',
+    date: '20/12/2024',
+    reference: 'ETA2',
+    secondaryMethods: ['Assignment', 'Project', 'SLC Observation'],
+    assessmentCriteria: [
+      { code: '[2a]', label: 'Demonstrate application of learning' },
+      { code: '[2b]', label: 'Provide documented evidence' },
+    ],
+    skillTags: ['[Unit 02] Skills', 'IT'],
+    associatedResources: [{ name: 'Evidence Template.pdf', url: '#' }],
+    evidence: 'Evidence submitted on 27/02/2025.',
+    feedbackComments: '',
+    dateSet: '20/12/2024 10:30',
+    dateDue: '28/02/2025',
+    dateCompleted: '27/02/2025',
+    status: 'Complete',
+  },
+  '3': {
+    id: '3',
+    title: 'Attend workplace assessment',
+    subtitle: 'Scheduled workplace assessment with your assessor',
+    isTrainerAssigned: false,
+    primaryMethod: 'Observation',
+    date: '21/12/2024',
+    reference: 'WPA3',
+    secondaryMethods: ['Observation', 'Questions'],
+    assessmentCriteria: [
+      { code: '[3a]', label: 'Perform tasks to required standard' },
+      { code: '[3b]', label: 'Demonstrate competency in the workplace' },
+    ],
+    skillTags: ['[Unit 03] Skills', 'Workplace Skills'],
+    associatedResources: [],
+    evidence: '',
+    feedbackComments: '',
+    dateSet: '21/12/2024 14:15',
+    dateDue: '01/03/2025',
+    dateCompleted: null,
+    status: 'Pending',
+  },
+  '4': {
+    id: '4',
+    title: 'Review development plan with trainer',
+    subtitle: 'Scheduled review of your personal development plan',
+    isTrainerAssigned: true,
+    primaryMethod: 'Assignment',
+    date: '22/12/2024',
+    reference: 'RDP4',
+    secondaryMethods: ['Assignment', 'FS Prep', 'Questions'],
+    assessmentCriteria: [
+      { code: '[4a]', label: 'Identify areas for development' },
+      { code: '[4b]', label: 'Set SMART targets' },
+    ],
+    skillTags: ['[Unit 04] Skills', 'Planning'],
+    associatedResources: [{ name: 'Development Plan Template.docx', url: '#' }],
+    evidence: 'Development plan reviewed and approved by trainer.',
+    feedbackComments: 'Good progress noted by trainer.',
+    dateSet: '22/12/2024 09:00',
+    dateDue: '10/03/2025',
+    dateCompleted: '10/03/2025',
+    status: 'Approved',
+  },
+  '5': {
+    id: '5',
+    title: 'Resubmit portfolio documentation',
+    subtitle: 'Resubmit corrected portfolio documentation as requested',
+    isTrainerAssigned: true,
+    primaryMethod: 'Assignment',
+    date: '23/12/2024',
+    reference: 'RPD5',
+    secondaryMethods: ['Assignment', 'Project'],
+    assessmentCriteria: [
+      { code: '[5a]', label: 'Compile portfolio evidence' },
+      { code: '[5b]', label: 'Ensure documentation meets criteria' },
+    ],
+    skillTags: ['[Unit 05] Skills', 'Documentation'],
+    associatedResources: [{ name: 'Portfolio Guidelines.pdf', url: '#' }],
+    evidence: '',
+    feedbackComments: 'Please resubmit with corrected referencing.',
+    dateSet: '23/12/2024 16:45',
+    dateDue: '05/03/2025',
+    dateCompleted: null,
+    status: 'Rejected',
+  },
+};
+
 export const FILTER_OPTIONS: TasksFilterOptions = {
   periods: [
     { value: 'all', label: 'Show All' },
@@ -62,5 +175,26 @@ export const FILTER_OPTIONS: TasksFilterOptions = {
     { value: 'all', label: 'All Statuses' },
   ],
 };
+
+export const SECONDARY_METHOD_OPTIONS = [
+  'Assignment',
+  'FS Prep',
+  'Gateway',
+  'Observation',
+  'Project',
+  'Questions',
+  'SLC Observation',
+  'Teaching and Learning',
+];
+
+export const PRIMARY_METHOD_OPTIONS = [
+  'Assignment',
+  'Observation',
+  'Questions',
+  'Project',
+  'FS Prep',
+  'Gateway',
+  'Teaching and Learning',
+];
 
 export const PENDING_TASKS_COUNT = 4;

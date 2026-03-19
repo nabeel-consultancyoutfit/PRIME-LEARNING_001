@@ -41,7 +41,7 @@ export const TRAINER_NAV_ITEMS: NavItem[] = [
   {
     label: 'Reports',
     icon: BarChartOutlined,
-    path: '/trainer-dashboard/progress',
+    path: '/trainer-dashboard/reports',
   },
   {
     label: 'Resources',

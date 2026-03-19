@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prime Learning Platform — System Flow Diagram</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F0F2F5; color: #1E1E2D; }
+
+  .page-header {
+    background: #1E1E2D;
+    color: #fff;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .page-header h1 { font-size: 22px; font-weight: 700; }
+  .page-header p { font-size: 13px; color: #A0A0B0; margin-top: 4px; }
+  .logo { font-size: 28px; }
+
+  .nav-tabs {
+    background: #fff;
+    border-bottom: 2px solid #E8E8E8;
+    display: flex;
+    gap: 4px;
+    padding: 0 40px;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { color: #1E1E2D; }
+  .nav-tab.active { color: #1E1E2D; border-bottom-color: #1E1E2D; }
+
+  .section { display: none; padding: 32px 40px; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E1E2D;
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .diagram-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #E8E8E8;
+    padding: 24px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .diagram-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1E1E2D;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .diagram-card .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .badge-auth { background: #E8F5E9; color: #388E3C; }
+  .badge-learner { background: #E3F2FD; color: #1565C0; }
+  .badge-trainer { background: #FFF3E0; color: #E65100; }
+  .badge-admin { background: #F3E5F5; color: #7B1FA2; }
+  .badge-missing { background: #FFEBEE; color: #C62828; }
+  .badge-api { background: #E0F7FA; color: #00695C; }
+
+  /* Gap Analysis Table */
+  .gap-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .gap-table th {
+    background: #1E1E2D;
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .gap-table td { padding: 10px 14px; border-bottom: 1px solid #F0F0F0; vertical-align: top; }
+  .gap-table tr:nth-child(even) td { background: #FAFAFA; }
+  .gap-table tr:hover td { background: #F0F4FF; }
+
+  .status-chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .chip-critical { background: #FFEBEE; color: #C62828; }
+  .chip-missing { background: #FFF8E1; color: #F57F17; }
+  .chip-partial { background: #E8F5E9; color: #2E7D32; }
+  .chip-mock { background: #E3F2FD; color: #1565C0; }
+
+  .entity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .entity-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E8E8E8;
+    padding: 16px;
+  }
+  .entity-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1E1E2D;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .entity-card ul {
+    list-style: none;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.8;
+  }
+  .entity-card ul li::before { content: '• '; color: #7B61FF; font-weight: 700; }
+
+  .endpoint-list { font-size: 12px; line-height: 2; }
+  .endpoint-list .method {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 6px;
+    font-family: monospace;
+  }
+  .get { background: #E8F5E9; color: #2E7D32; }
+  .post { background: #E3F2FD; color: #1565C0; }
+  .patch { background: #FFF3E0; color: #E65100; }
+  .delete { background: #FFEBEE; color: #C62828; }
+
+  .mermaid { min-height: 200px; }
+
+  .swagger-note {
+    background: #FFF8E1;
+    border: 1px solid #FFE082;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #5D4037;
+    line-height: 1.6;
+  }
+  .swagger-note strong { color: #E65100; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo">🎓</div>
+  <div>
+    <h1>Prime Learning Platform — System Architecture & Flow Diagram</h1>
+    <p>Complete backend design reference · NestJS + MongoDB · Generated from frontend analysis</p>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showSection('overview')">📊 System Overview</div>
+  <div class="nav-tab" onclick="showSection('auth')">🔐 Auth Flow</div>
+  <div class="nav-tab" onclick="showSection('learner')">👤 Learner Flow</div>
+  <div class="nav-tab" onclick="showSection('trainer')">🧑‍🏫 Trainer Flow</div>
+  <div class="nav-tab" onclick="showSection('api')">🔌 API Endpoints</div>
+  <div class="nav-tab" onclick="showSection('entities')">🗄️ Data Models</div>
+  <div class="nav-tab" onclick="showSection('gaps')">🚨 Missing / Swagger Only</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- OVERVIEW -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="overview" class="section active">
+  <div class="section-title">System Overview</div>
+  <div class="section-desc">Complete flow of all modules — Authentication → Role Routing → Learner/Trainer/Admin modules → API Layer → MongoDB</div>
+
+  <div class="diagram-card">
+    <h3>🏗️ High-Level System Architecture</h3>
+    <div class="mermaid">
+flowchart TB
+    subgraph CLIENT["🖥️ Next.js Frontend (Pages Router)"]
+      direction TB
+      AUTH_PAGE["Auth Pages\n/auth/login\n/auth/register"]
+      LEARNER_MODULE["Learner Module\n/learner-dashboard/*\n26 routes"]
+      TRAINER_MODULE["Trainer Module\n/trainer-dashboard/*\n15 routes"]
+      ADMIN_MODULE["Admin Module\n/admin/*"]
+      COURSE_MGMT["Course Management\n/courses/*"]
+      BILLING_MODULE["Billing Module\n/billing/*"]
+    end
+
+    subgraph SHARED["🔗 Shared Layer"]
+      APPCLIENT["API Client\nsrc/services/api.ts"]
+      AUTH_CTX["Auth Context\nJWT Token Store"]
+      REDUX["Redux Store\nslices/*"]
+    end
+
+    subgraph BACKEND["⚙️ NestJS Backend (To Build)"]
+      direction TB
+      AUTH_API["Auth Module\n/auth/*"]
+      USER_API["Users Module\n/users/*"]
+      LEARNER_API["Learners Module\n/learners/*"]
+      TRAINER_API["Trainers Module\n/trainers/*"]
+      TASK_API["Tasks Module\n/tasks/*"]
+      EVIDENCE_API["Evidence Module\n/evidence/*"]
+      PROGRESS_API["Progress Module\n/progress/*"]
+      TIMESHEET_API["Timesheet/OTJ Module\n/timesheets/*"]
+      JOURNAL_API["Learning Journals\n/journals/*"]
+      VISIT_API["Visits Module\n/visits/*"]
+      MESSAGE_API["Messages Module\n/messages/*"]
+      COURSE_API["Courses Module\n/courses/*"]
+      RESOURCE_API["Resources Module\n/resources/*"]
+      REVIEW_API["Progress Reviews\n/reviews/*"]
+      ANNOUNCEMENT_API["Announcements\n/announcements/*"]
+      GAP_API["Gap Analysis\n/gap-analysis/*"]
+      COHORT_API["Cohorts Module\n/cohorts/*"]
+    end
+
+    subgraph DB["🗄️ MongoDB Atlas"]
+      USERS_COL[("users")]
+      LEARNERS_COL[("learners")]
+      TASKS_COL[("tasks")]
+      EVIDENCE_COL[("evidence")]
+      JOURNALS_COL[("journals")]
+      PROGRESS_COL[("progress")]
+      COURSES_COL[("courses")]
+      MESSAGES_COL[("messages")]
+      REVIEWS_COL[("reviews")]
+      OTHER_COL[("+ 10 more collections")]
+    end
+
+    CLIENT --> SHARED
+    SHARED --> BACKEND
+    BACKEND --> DB
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🔀 Role-Based Routing Flow <span class="badge badge-auth">AUTH</span></h3>
+    <div class="mermaid">
+flowchart TD
+    START([User visits app]) --> INDEX["/  index.tsx"]
+    INDEX --> CHECK_AUTH{Has valid\nJWT token?}
+    CHECK_AUTH -->|No| LOGIN["/auth/login"]
+    CHECK_AUTH -->|Yes| CHECK_ROLE{User Role?}
+
+    LOGIN --> SUBMIT_LOGIN[Submit credentials]
+    SUBMIT_LOGIN --> API_LOGIN["POST /auth/login"]
+    API_LOGIN -->|Success| STORE_TOKEN[Store JWT + User in Context]
+    API_LOGIN -->|Error| LOGIN_ERROR["Show error message"]
+    LOGIN_ERROR --> LOGIN
+    STORE_TOKEN --> CHECK_ROLE
+
+    CHECK_ROLE -->|learner| LEARNER_DASH["/learner-dashboard"]
+    CHECK_ROLE -->|trainer| TRAINER_DASH["/trainer-dashboard"]
+    CHECK_ROLE -->|iqa| IQA_DASH["/iqa-dashboard"]
+    CHECK_ROLE -->|admin| ADMIN_DASH["/admin"]
+
+    LEARNER_DASH --> LEARNER_PAGES["Learner Module\n26 pages"]
+    TRAINER_DASH --> TRAINER_PAGES["Trainer Module\n15 pages"]
+    IQA_DASH --> IQA_PAGES["IQA Module\n🚨 Not built yet"]
+    ADMIN_DASH --> ADMIN_PAGES["Admin Module\nUser management"]
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- AUTH FLOW -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="auth" class="section">
+  <div class="section-title">Authentication Flow</div>
+  <div class="section-desc">Login, Register, JWT refresh, role-based guards, and protected routes.</div>
+
+  <div class="diagram-card">
+    <h3>🔐 Login & Token Flow <span class="badge badge-auth">AUTH</span></h3>
+    <div class="mermaid">
+sequenceDiagram
+    participant B as Browser
+    participant FE as Next.js Frontend
+    participant BE as NestJS Auth Module
+    participant DB as MongoDB
+
+    B->>FE: Navigate to /auth/login
+    FE->>B: Render LoginPage
+
+    B->>FE: Submit email + password
+    FE->>BE: POST /auth/login { email, password }
+    BE->>DB: Find user by email
+    DB-->>BE: User document
+    BE->>BE: bcrypt.compare(password, hash)
+
+    alt Valid credentials
+        BE->>BE: Generate JWT (access + refresh)
+        BE-->>FE: { user, accessToken, refreshToken }
+        FE->>FE: Store tokens in httpOnly cookie / context
+        FE->>B: Redirect to role-based dashboard
+    else Invalid credentials
+        BE-->>FE: 401 Unauthorized
+        FE->>B: Show error toast
+    end
+
+    Note over FE,BE: Protected routes send Authorization: Bearer {token}
+
+    B->>FE: Access protected page
+    FE->>BE: GET /auth/me (Bearer token)
+    BE->>BE: Validate JWT
+    alt Token valid
+        BE-->>FE: Current user data
+        FE->>B: Render protected page
+    else Token expired
+        FE->>BE: POST /auth/refresh (refreshToken)
+        BE-->>FE: New accessToken
+        FE->>BE: Retry original request
+    end
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🛡️ Route Guards & Middleware <span class="badge badge-auth">AUTH</span></h3>
+    <div class="mermaid">
+flowchart LR
+    REQ[Incoming Request] --> JWT_GUARD[JwtAuthGuard]
+    JWT_GUARD -->|Valid| ROLES_GUARD[RolesGuard]
+    JWT_GUARD -->|Invalid| UNAUTH["401 Unauthorized"]
+
+    ROLES_GUARD -->|Has role| HANDLER[Route Handler]
+    ROLES_GUARD -->|Wrong role| FORBIDDEN["403 Forbidden"]
+
+    subgraph ROLES["Available Roles"]
+      R1["@Roles('admin')"]
+      R2["@Roles('trainer')"]
+      R3["@Roles('learner')"]
+      R4["@Roles('iqa')"]
+    end
+    ROLES_GUARD --- ROLES
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- LEARNER FLOW -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="learner" class="section">
+  <div class="section-title">Learner Module — Full Flow</div>
+  <div class="section-desc">All 26 learner routes and their data flows mapped to backend APIs needed.</div>
+
+  <div class="diagram-card">
+    <h3>👤 Learner Dashboard Flow <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="mermaid">
+flowchart TD
+    ENTRY["/learner-dashboard"] --> DASH["/learner-dashboard/dashboard\nDashboard Overview"]
+
+    DASH --> DASH_DATA["API calls needed:\nGET /learners/me\nGET /tasks?assignee=me&status=upcoming\nGET /progress/overview\nGET /reviews/next\nGET /timesheets/otj-summary\nGET /learners/me/workplace"]
+
+    DASH --> NAV_TABS["Main Tabs"]
+    NAV_TABS --> T1["Activity Tab\n/learner-dashboard/activity"]
+    NAV_TABS --> T2["Manage Tab\nLearning Aims"]
+    NAV_TABS --> T3["Progress Tab\n/learner-dashboard/progress"]
+    NAV_TABS --> T4["Forms Tab\nSubmittable forms"]
+
+    T1 --> ACT_TABS["Activity Sub-tabs"]
+    ACT_TABS --> A1["Learning Activity Evidence\n/evidence"]
+    ACT_TABS --> A2["Timesheet (OTJ)\n/timesheet"]
+    ACT_TABS --> A3["Visit Records\n/visit"]
+    ACT_TABS --> A4["Messages\n/message"]
+    ACT_TABS --> A5["Tasks\n/tasks"]
+
+    T3 --> PROG["Progress Units\n/progress-unit-details"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📋 Tasks Flow <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="mermaid">
+flowchart LR
+    TASKS_PAGE["/learner-dashboard/tasks"] --> FETCH["GET /tasks\n?assignee=me\n&status=filter\n&period=1m|3m|6m|1y"]
+
+    FETCH --> LIST["Display task list\n(In Progress, Complete,\nPending, Approved, Rejected)"]
+
+    LIST --> FILTER_STATUS["Filter by Status"]
+    LIST --> FILTER_PERIOD["Filter by Period"]
+    LIST --> TASK_ITEM["Individual Task"]
+
+    TASK_ITEM --> COMPLETE["PATCH /tasks/:id\n{ status: 'complete' }"]
+    TASK_ITEM --> VIEW_DETAIL["GET /tasks/:id"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📁 Evidence Flow <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="mermaid">
+flowchart LR
+    EV_PAGE["/learner-dashboard/evidence"] --> FETCH["GET /evidence\n?learner=me\n&status=pending|approved|all"]
+    FETCH --> EV_LIST["Evidence List\n(Assignment, Project,\nWorkshop, Assessment)"]
+
+    EV_LIST --> CREATE["POST /evidence\n{ type, method,\nhours, description,\nattachments }"]
+    EV_LIST --> VIEW["GET /evidence/:id"]
+    EV_LIST --> UPDATE["PATCH /evidence/:id"]
+    UPDATE --> APPROVE["PATCH /evidence/:id\n{ status: 'approved' }\n🔒 Trainer only"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📔 Learning Journals Flow <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="mermaid">
+flowchart LR
+    JRN_PAGE["/learner-dashboard/learning-journals"] --> FETCH["GET /journals\n?learner=me\n&category=filter\n&type=otj|on-job"]
+
+    FETCH --> JRN_LIST["Journal Entry List"]
+    JRN_LIST --> CREATE["POST /journals\n{ content, category,\nactivityType, date,\nhours }"]
+    JRN_LIST --> EDIT["PATCH /journals/:id"]
+    JRN_LIST --> DELETE["DELETE /journals/:id"]
+
+    JRN_PAGE --> TIMESHEET["/journals-timesheet\nCombined OTJ view\nGET /timesheets?learner=me"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📈 Progress & Gap Analysis Flow <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="mermaid">
+flowchart TD
+    PROG_PAGE["/learner-dashboard/progress"] --> PROG_FETCH["GET /progress?learner=me\nReturns units with %"]
+    PROG_PAGE --> UNIT_DETAIL["/progress-unit-details\nGET /progress/units/:unitId"]
+
+    GAP_PAGE["/learner-dashboard/gap-analysis"] --> GAP_FETCH["GET /gap-analysis?learner=me\nSkills gap matrix"]
+
+    SCORECARD["/learner-dashboard/scorecard"] --> SC_FETCH["GET /scorecard?learner=me\n&range=1m|3m|6m|1y\nMonthly growth data"]
+
+    JOURNEY["/learner-dashboard/learning-journey"] --> JRN_FETCH["GET /learning-journey?learner=me\nTimeline milestones"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🏢 Workplace & Profile Flow <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="mermaid">
+flowchart LR
+    PROFILE["/learner-dashboard/profile"] --> PDATA["GET /learners/me\nGet full profile data"]
+    PDATA --> PEDIT["PATCH /learners/me\nUpdate profile"]
+
+    PDATA --> WORKPLACE["Workplace Info\nWorkplace name\nMentor name/phone\nEmail"]
+    PDATA --> STATUS["Set Status\nOnline/Available\nBusy/Out of office"]
+    STATUS --> STATUS_API["PATCH /users/me/status\n{ status, oooMessage }"]
+
+    PROFILE --> LEARNING_AIM["Learning Aims\nGET /learning-aims?learner=me"]
+    LEARNING_AIM --> AIM_EXPAND["Expand aim\nGET /learning-aims/:id/units"]
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TRAINER FLOW -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="trainer" class="section">
+  <div class="section-title">Trainer Module — Full Flow</div>
+  <div class="section-desc">All trainer routes and their interactions with learner data, portfolio views, and dashboard statistics.</div>
+
+  <div class="diagram-card">
+    <h3>🧑‍🏫 Trainer Dashboard Flow <span class="badge badge-trainer">TRAINER</span></h3>
+    <div class="mermaid">
+flowchart TD
+    TRAINER_DASH["/trainer-dashboard"] --> ACTIVITY_SECT["Learner's Activity Section"]
+
+    ACTIVITY_SECT --> COHORT_FILTER["GET /cohorts\nPopulate cohort dropdown"]
+    ACTIVITY_SECT --> LEARNER_SEARCH["GET /learners\n?cohort=id&search=query\nPopulate learner dropdown"]
+
+    TRAINER_DASH --> TRAINER_SECT["Trainer's Dashboard\nAccordion Stats"]
+    TRAINER_SECT --> STATS_API["GET /trainers/me/stats\nReturns:\n- Completed visits / 30 days\n- Planned visits / 30 days\n- IQA Action count\n- Learners due to complete\n- Learners last logged in\n- Learners on target\n- OTJ activity status\n- Progress reviews due\n- Tasks due"]
+
+    TRAINER_DASH --> LEARNER_DASH_SECT["Learner Dashboard\nAccordion Table"]
+    LEARNER_DASH_SECT --> LEARNER_TABLE["GET /learners\n?trainer=me\n&cohort=filter\nReturns paginated learner table\nwith progress, deviation, tasks"]
+
+    TRAINER_DASH --> FORMS_SECT["Forms & Templates\nAccordion"]
+    FORMS_SECT --> FORMS_NAV["Navigate to\ntemplate pages"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🗂️ View Portfolio Flow (Figma: 2066:16841) <span class="badge badge-trainer">TRAINER</span></h3>
+    <div class="mermaid">
+flowchart TD
+    VIEW_BTN["Click 'View Portfolio'"] --> SELECT_LEARNER["Learner Selector\nGET /learners?trainer=me"]
+    SELECT_LEARNER --> PICK["Select a learner card"]
+
+    PICK --> PORTFOLIO["Learner Portfolio View\nFull detail screen"]
+
+    PORTFOLIO --> TAB_ACT["Activity Tab"]
+    PORTFOLIO --> TAB_MGT["Manage Tab"]
+    PORTFOLIO --> TAB_PROG["Progress Tab"]
+    PORTFOLIO --> TAB_FORMS["Forms Tab"]
+
+    TAB_ACT --> SUB_TABS["Sub-navigation"]
+    SUB_TABS --> S1["Activity\nGET /evidence?learner=:id"]
+    SUB_TABS --> S2["Learning Activity Evidence\nGET /evidence?learner=:id&type=LA"]
+    SUB_TABS --> S3["Timesheet\nGET /timesheets?learner=:id"]
+    SUB_TABS --> S4["Visit\nGET /visits?learner=:id"]
+    SUB_TABS --> S5["Message\nGET /messages?thread=learner-:id"]
+    SUB_TABS --> S6["Task\nGET /tasks?assignee=:id"]
+
+    PORTFOLIO --> STAT_CARDS["Stats Row"]
+    STAT_CARDS --> SC1["Overall Progress\nGET /progress/overview?learner=:id"]
+    STAT_CARDS --> SC2["Calendar\nGET /visits/calendar?learner=:id"]
+    STAT_CARDS --> SC3["Task Due\nGET /tasks/due-summary?learner=:id"]
+
+    PORTFOLIO --> INFO_CARDS["Info Cards"]
+    INFO_CARDS --> IC1["Plan of Activity\nGET /plans?learner=:id"]
+    INFO_CARDS --> IC2["OTJ Training\nGET /timesheets/otj-summary?learner=:id"]
+    INFO_CARDS --> IC3["Progress Reviews\nGET /reviews/next?learner=:id"]
+
+    PORTFOLIO --> WORKPLACE_BAR["Workplace Bar\nGET /learners/:id/workplace"]
+    PORTFOLIO --> AIM_TABLE["Learning Aim Table\nGET /learning-aims?learner=:id"]
+    PORTFOLIO --> INFO_PANEL["Information & Options Panel\nGET /learners/:id/links"]
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📊 Trainer Stats Widgets <span class="badge badge-trainer">TRAINER</span></h3>
+    <div class="mermaid">
+flowchart LR
+    subgraph STATS["GET /trainers/me/stats"]
+      CAL["Calendar\n(Visit dates)"]
+      CV["Completed Visits\n30 days donut"]
+      PV["Planned Visits\n30 days donut"]
+      IQA["IQA Action\nbar chart"]
+      DUE["Learners Due\n90 days table"]
+      LOG["Last Logged In\npie chart"]
+      ON_TGT["On Target\npie chart"]
+      OTJ["OTJ Activity\npie chart"]
+      REVIEWS["Progress Reviews\npie chart"]
+      TASK_DUE["Tasks Due\nhorizontal bars"]
+    end
+
+    TRAINER_DASH["Trainer Dashboard"] --> STATS
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🔄 Trainer → Learner Interactions <span class="badge badge-trainer">TRAINER</span></h3>
+    <div class="mermaid">
+flowchart TD
+    TRAINER["Trainer"] --> ASSIGN_TASK["Assign Task to Learner\nPOST /tasks\n{ assignee: learnerId,\ntitle, description, dueDate }"]
+
+    TRAINER --> SCHEDULE_VISIT["Schedule Visit\nPOST /visits\n{ learner, date, type, notes }"]
+
+    TRAINER --> SCHEDULE_REVIEW["Schedule Progress Review\nPOST /reviews\n{ learner, date, notes }"]
+
+    TRAINER --> APPROVE_EV["Approve Evidence\nPATCH /evidence/:id\n{ status: 'approved' }"]
+
+    TRAINER --> SEND_MSG["Send Message\nPOST /messages\n{ to: learnerId, content }"]
+
+    TRAINER --> CREATE_JOURNAL["Add to Learning Journal\nPOST /journals\n{ learner: id, content... }"]
+
+    TRAINER --> MARK_UNIT["Sign Off Unit\nPATCH /progress/units/:unitId\n{ signedOff: true }"]
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- API ENDPOINTS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="api" class="section">
+  <div class="section-title">Complete API Endpoint Map</div>
+  <div class="section-desc">Every endpoint the NestJS backend needs to expose, derived from the frontend's service calls and page data requirements.</div>
+
+  <div class="diagram-card">
+    <h3>🔐 Auth Endpoints <span class="badge badge-auth">AUTH</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method post">POST</span> /auth/login</div>
+      <div><span class="method post">POST</span> /auth/register</div>
+      <div><span class="method post">POST</span> /auth/logout</div>
+      <div><span class="method post">POST</span> /auth/refresh</div>
+      <div><span class="method get">GET</span> /auth/me</div>
+      <div><span class="method patch">PATCH</span> /users/me/status &nbsp;— set online/busy/OOO status</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>👤 Learners Endpoints <span class="badge badge-learner">LEARNER</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /learners &nbsp;— list all (trainer/admin) with ?cohort, ?trainer, ?search, ?status</div>
+      <div><span class="method get">GET</span> /learners/me &nbsp;— current learner's full profile</div>
+      <div><span class="method get">GET</span> /learners/:id &nbsp;— specific learner (trainer access)</div>
+      <div><span class="method patch">PATCH</span> /learners/me &nbsp;— update own profile</div>
+      <div><span class="method get">GET</span> /learners/:id/workplace &nbsp;— workplace info</div>
+      <div><span class="method get">GET</span> /learners/:id/links &nbsp;— Information &amp; Options links</div>
+      <div><span class="method post">POST</span> /learners &nbsp;— create learner (admin)</div>
+      <div><span class="method patch">PATCH</span> /learners/:id &nbsp;— update learner (admin/trainer)</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🧑‍🏫 Trainers Endpoints <span class="badge badge-trainer">TRAINER</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /trainers/me/stats &nbsp;— all dashboard statistics</div>
+      <div><span class="method get">GET</span> /trainers/me/learners &nbsp;— assigned learners list</div>
+      <div><span class="method get">GET</span> /trainers/:id</div>
+      <div><span class="method get">GET</span> /trainers &nbsp;— list all (admin)</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📋 Tasks Endpoints <span class="badge badge-api">TASKS</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /tasks &nbsp;— with ?assignee, ?status, ?period, ?trainer</div>
+      <div><span class="method get">GET</span> /tasks/:id</div>
+      <div><span class="method post">POST</span> /tasks &nbsp;— { title, description, dueDate, assignee, assignedBy }</div>
+      <div><span class="method patch">PATCH</span> /tasks/:id &nbsp;— update status/details</div>
+      <div><span class="method delete">DEL</span> /tasks/:id</div>
+      <div><span class="method get">GET</span> /tasks/due-summary &nbsp;— count by urgency (Immediately / This week / Next week / In 2 weeks)</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📁 Evidence Endpoints <span class="badge badge-api">EVIDENCE</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /evidence &nbsp;— with ?learner, ?status, ?type</div>
+      <div><span class="method get">GET</span> /evidence/:id</div>
+      <div><span class="method post">POST</span> /evidence &nbsp;— { type, method, description, hours, attachments, learner }</div>
+      <div><span class="method patch">PATCH</span> /evidence/:id &nbsp;— update</div>
+      <div><span class="method patch">PATCH</span> /evidence/:id/approve &nbsp;— trainer approves</div>
+      <div><span class="method delete">DEL</span> /evidence/:id</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>⏱️ Timesheets / OTJ Endpoints <span class="badge badge-api">OTJ</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /timesheets &nbsp;— with ?learner, ?dateFrom, ?dateTo</div>
+      <div><span class="method get">GET</span> /timesheets/:id</div>
+      <div><span class="method post">POST</span> /timesheets &nbsp;— { date, hours, activity, description, learner }</div>
+      <div><span class="method patch">PATCH</span> /timesheets/:id</div>
+      <div><span class="method delete">DEL</span> /timesheets/:id</div>
+      <div><span class="method get">GET</span> /timesheets/otj-summary &nbsp;— total OTJ hours vs target</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📔 Learning Journals Endpoints <span class="badge badge-api">JOURNALS</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /journals &nbsp;— with ?learner, ?category, ?type, ?dateFrom, ?dateTo</div>
+      <div><span class="method get">GET</span> /journals/:id</div>
+      <div><span class="method post">POST</span> /journals &nbsp;— { content, category, activityType, date, hours, learner }</div>
+      <div><span class="method patch">PATCH</span> /journals/:id</div>
+      <div><span class="method delete">DEL</span> /journals/:id</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🏥 Visits Endpoints <span class="badge badge-api">VISITS</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /visits &nbsp;— with ?learner, ?trainer, ?status, ?dateFrom, ?dateTo</div>
+      <div><span class="method get">GET</span> /visits/:id</div>
+      <div><span class="method post">POST</span> /visits &nbsp;— { learner, trainer, date, type, notes, status }</div>
+      <div><span class="method patch">PATCH</span> /visits/:id &nbsp;— update/complete visit</div>
+      <div><span class="method get">GET</span> /visits/calendar &nbsp;— ?learner, ?month — calendar view data</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📈 Progress & Learning Aims Endpoints <span class="badge badge-api">PROGRESS</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /progress &nbsp;— with ?learner — all aims + overall %</div>
+      <div><span class="method get">GET</span> /progress/overview &nbsp;— summary donut data</div>
+      <div><span class="method get">GET</span> /learning-aims &nbsp;— with ?learner</div>
+      <div><span class="method get">GET</span> /learning-aims/:id/units &nbsp;— units within an aim</div>
+      <div><span class="method patch">PATCH</span> /progress/units/:unitId &nbsp;— sign off unit (trainer)</div>
+      <div><span class="method get">GET</span> /gap-analysis &nbsp;— with ?learner — skills gap matrix</div>
+      <div><span class="method get">GET</span> /scorecard &nbsp;— with ?learner, ?range — monthly growth</div>
+      <div><span class="method get">GET</span> /learning-journey &nbsp;— with ?learner — milestones timeline</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📅 Progress Reviews Endpoints <span class="badge badge-api">REVIEWS</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /reviews &nbsp;— with ?learner, ?trainer, ?status</div>
+      <div><span class="method get">GET</span> /reviews/:id</div>
+      <div><span class="method post">POST</span> /reviews &nbsp;— { learner, trainer, scheduledDate, notes }</div>
+      <div><span class="method patch">PATCH</span> /reviews/:id &nbsp;— complete review, add notes</div>
+      <div><span class="method get">GET</span> /reviews/next &nbsp;— ?learner — next scheduled review</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>💬 Messages Endpoints <span class="badge badge-api">MESSAGES</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /messages &nbsp;— with ?thread or ?participant</div>
+      <div><span class="method get">GET</span> /messages/:id</div>
+      <div><span class="method post">POST</span> /messages &nbsp;— { to, content, attachments }</div>
+      <div><span class="method patch">PATCH</span> /messages/:id/read &nbsp;— mark as read</div>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <h3>📦 Other Endpoints <span class="badge badge-api">MISC</span></h3>
+    <div class="endpoint-list">
+      <div><span class="method get">GET</span> /cohorts &nbsp;— list cohorts</div>
+      <div><span class="method post">POST</span> /cohorts &nbsp;— create cohort (admin)</div>
+      <div><span class="method get">GET</span> /announcements &nbsp;— system announcements</div>
+      <div><span class="method post">POST</span> /announcements &nbsp;— create (admin)</div>
+      <div><span class="method get">GET</span> /resources &nbsp;— with ?learner — folder/file structure</div>
+      <div><span class="method post">POST</span> /resources &nbsp;— upload resource</div>
+      <div><span class="method get">GET</span> /plans &nbsp;— plan of activity, with ?learner</div>
+      <div><span class="method post">POST</span> /plans &nbsp;— create plan</div>
+      <div><span class="method get">GET</span> /admin/users &nbsp;— user management</div>
+      <div><span class="method get">GET</span> /admin/stats &nbsp;— platform statistics</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ENTITIES / DATA MODELS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="entities" class="section">
+  <div class="section-title">MongoDB Data Models (Mongoose Schemas)</div>
+  <div class="section-desc">Every collection needed in MongoDB, derived from the frontend data structures and mock data fields.</div>
+
+  <div class="diagram-card">
+    <h3>🗄️ Entity Relationship Overview</h3>
+    <div class="mermaid">
+erDiagram
+    USER {
+      ObjectId _id
+      string email
+      string passwordHash
+      string role
+      string firstName
+      string lastName
+      string avatarUrl
+      string status
+      string oooMessage
+      boolean isActive
+      Date createdAt
+    }
+
+    LEARNER {
+      ObjectId _id
+      ObjectId userId
+      ObjectId trainerId
+      ObjectId cohortId
+      string employer
+      string programme
+      string workplace
+      string mentorName
+      string mentorPhone
+      string mentorEmail
+      Date startDate
+      Date plannedEndDate
+      number progressPercent
+      string awardRegNumber
+      string iqaStatus
+    }
+
+    TRAINER {
+      ObjectId _id
+      ObjectId userId
+      string[] assignedLearnerIds
+    }
+
+    COHORT {
+      ObjectId _id
+      string name
+      ObjectId[] learnerIds
+      ObjectId trainerId
+    }
+
+    TASK {
+      ObjectId _id
+      string title
+      string description
+      Date dueDate
+      string status
+      ObjectId assigneeId
+      ObjectId assignedById
+      string urgency
+    }
+
+    EVIDENCE {
+      ObjectId _id
+      ObjectId learnerId
+      string type
+      string method
+      number hours
+      string description
+      string[] attachments
+      string status
+      Date date
+    }
+
+    JOURNAL {
+      ObjectId _id
+      ObjectId learnerId
+      string content
+      string category
+      string activityType
+      number hours
+      Date date
+    }
+
+    TIMESHEET {
+      ObjectId _id
+      ObjectId learnerId
+      string activity
+      number hours
+      Date date
+      string description
+    }
+
+    VISIT {
+      ObjectId _id
+      ObjectId learnerId
+      ObjectId trainerId
+      Date scheduledDate
+      string type
+      string status
+      string notes
+    }
+
+    REVIEW {
+      ObjectId _id
+      ObjectId learnerId
+      ObjectId trainerId
+      Date scheduledDate
+      string status
+      string notes
+    }
+
+    LEARNING_AIM {
+      ObjectId _id
+      ObjectId learnerId
+      string title
+      string standard
+      number currentProgress
+      number targetProgress
+      string status
+    }
+
+    UNIT {
+      ObjectId _id
+      ObjectId learningAimId
+      string title
+      boolean signedOff
+      Date signedOffDate
+      ObjectId signedOffById
+    }
+
+    MESSAGE {
+      ObjectId _id
+      ObjectId fromId
+      ObjectId toId
+      string content
+      boolean read
+      Date createdAt
+    }
+
+    USER ||--o| LEARNER : "is"
+    USER ||--o| TRAINER : "is"
+    TRAINER ||--o{ LEARNER : "manages"
+    COHORT ||--o{ LEARNER : "contains"
+    LEARNER ||--o{ TASK : "assigned"
+    LEARNER ||--o{ EVIDENCE : "submits"
+    LEARNER ||--o{ JOURNAL : "writes"
+    LEARNER ||--o{ TIMESHEET : "logs"
+    LEARNER ||--o{ VISIT : "receives"
+    LEARNER ||--o{ REVIEW : "has"
+    LEARNER ||--o{ LEARNING_AIM : "studies"
+    LEARNING_AIM ||--o{ UNIT : "contains"
+    </div>
+  </div>
+
+  <div class="entity-grid">
+    <div class="entity-card">
+      <h4>User <span class="badge badge-auth">Base</span></h4>
+      <ul>
+        <li>email, passwordHash</li>
+        <li>role: learner | trainer | iqa | admin</li>
+        <li>firstName, lastName, avatarUrl</li>
+        <li>status: online | available | busy | ooo</li>
+        <li>oooMessage: string</li>
+        <li>isActive: boolean</li>
+        <li>createdAt, updatedAt</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Learner <span class="badge badge-learner">Profile</span></h4>
+      <ul>
+        <li>userId → User</li>
+        <li>trainerId → Trainer</li>
+        <li>cohortId → Cohort</li>
+        <li>employer, workplace</li>
+        <li>mentorName, mentorPhone, mentorEmail</li>
+        <li>programme (learning aim name)</li>
+        <li>startDate, plannedEndDate</li>
+        <li>awardRegistrationNumber</li>
+        <li>iqaStatus, learningAimStatus</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Task <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>title, description</li>
+        <li>dueDate</li>
+        <li>status: pending | in_progress | complete | approved | rejected</li>
+        <li>urgency: immediately | this_week | next_week | in_two_weeks</li>
+        <li>assigneeId → Learner</li>
+        <li>assignedById → Trainer/Admin</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Evidence <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>learnerId → Learner</li>
+        <li>type: assignment | project | workshop | assessment</li>
+        <li>method: string</li>
+        <li>hours: number</li>
+        <li>description: string</li>
+        <li>attachments: string[]</li>
+        <li>status: pending | approved | rejected</li>
+        <li>date: Date</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Learning Journal <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>learnerId → Learner</li>
+        <li>content: string</li>
+        <li>category: Development | Learning | Training | Assessment | Planning | Review | Other</li>
+        <li>activityType: off_the_job | on_the_job</li>
+        <li>hours: number</li>
+        <li>date: Date</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Timesheet (OTJ) <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>learnerId → Learner</li>
+        <li>activity: string</li>
+        <li>hours: number</li>
+        <li>date: Date</li>
+        <li>description: string</li>
+        <li>Aggregated: totalOTJ vs targetOTJ</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Visit <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>learnerId → Learner</li>
+        <li>trainerId → Trainer</li>
+        <li>scheduledDate: Date</li>
+        <li>type: planned | completed | cancelled</li>
+        <li>status: string</li>
+        <li>notes: string</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Progress Review <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>learnerId → Learner</li>
+        <li>trainerId → Trainer</li>
+        <li>scheduledDate: Date</li>
+        <li>status: scheduled | completed | overdue</li>
+        <li>notes: string</li>
+        <li>attendees: string[]</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Learning Aim <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>learnerId → Learner</li>
+        <li>title, standard</li>
+        <li>currentProgress: 0–100</li>
+        <li>targetProgress: 0–100</li>
+        <li>status: active | complete</li>
+        <li>units: Unit[]</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Cohort <span class="badge badge-admin">Admin</span></h4>
+      <ul>
+        <li>name: string</li>
+        <li>trainerId → Trainer</li>
+        <li>learnerIds → Learner[]</li>
+        <li>createdAt: Date</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Message <span class="badge badge-api">CRUD</span></h4>
+      <ul>
+        <li>fromId → User</li>
+        <li>toId → User</li>
+        <li>content: string</li>
+        <li>attachments: string[]</li>
+        <li>read: boolean</li>
+        <li>createdAt: Date</li>
+      </ul>
+    </div>
+    <div class="entity-card">
+      <h4>Announcement <span class="badge badge-admin">Admin</span></h4>
+      <ul>
+        <li>title, content</li>
+        <li>audience: all | learners | trainers</li>
+        <li>publishedAt: Date</li>
+        <li>createdById → User</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- GAPS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="gaps" class="section">
+  <div class="section-title">🚨 Missing Flows &amp; Manual Swagger CRUDs</div>
+  <div class="section-desc">What doesn't exist yet, what requires manual database seeding via Swagger, and what's only mocked in the frontend.</div>
+
+  <div class="swagger-note">
+    <strong>⚠️ Current State:</strong> The frontend uses a <code>MockApiClient</code> — <strong>zero real API calls are made</strong>. All data you see is hardcoded in <code>*.data.ts</code> files. Nothing persists. Every single flow listed below needs a real backend before it works.
+  </div>
+
+  <div class="diagram-card">
+    <h3>🚨 Critical — Entire App is Mocked</h3>
+    <table class="gap-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Feature / Flow</th>
+          <th>Status</th>
+          <th>What's needed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Authentication</strong> — Login / JWT / Role routing</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>NestJS Auth module, bcrypt, JWT, Passport, refresh tokens</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Learner Profile</strong> — GET /learners/me with all fields</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Learner schema + seed data</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Tasks</strong> — Full CRUD + status transitions</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Tasks module, filters by status/period/assignee</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Evidence</strong> — Submit, approve, filter</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Evidence module + file upload (S3/local)</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Learning Journals</strong> — CRUD + OTJ type</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Journals module</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>Timesheets / OTJ</strong> — Log hours, totals</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Timesheets module + aggregation pipeline</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>Progress &amp; Units</strong> — Track % per aim, sign off units</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Progress module + Learning Aims + Units</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><strong>Visits</strong> — Schedule, complete, calendar view</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Visits module</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><strong>Progress Reviews</strong> — Schedule, next review date</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Reviews module</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td><strong>Messages</strong> — Send/receive, threads</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Messages module (+ WebSocket for realtime)</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td><strong>Trainer Dashboard Stats</strong> — All 10 stat widgets</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Aggregation queries across tasks, visits, progress, reviews, OTJ</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td><strong>Learner Dashboard Stats</strong> — Progress donut, task due, calendar</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Aggregated endpoints per learner</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td><strong>Gap Analysis</strong> — Skills gap matrix</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>GapAnalysis module</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td><strong>Scorecard</strong> — Monthly growth chart</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Scorecard aggregation by month</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td><strong>Courses</strong> — Learner-specific course list</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Courses module (basic structure exists in types)</td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td><strong>Resources</strong> — Folder/file structure per learner</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Resources module + file storage</td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td><strong>Announcements</strong> — System-wide announcements</td>
+          <td><span class="status-chip chip-mock">MOCKED</span></td>
+          <td>Announcements module</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🔧 Things That Need Manual Swagger CRUD (no UI yet)</h3>
+    <table class="gap-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Operation</th>
+          <th>Why no UI</th>
+          <th>Swagger endpoint</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Create Learner accounts</strong></td>
+          <td>No admin "Create Learner" form in frontend</td>
+          <td>POST /learners</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Create Trainer accounts</strong></td>
+          <td>No admin "Create Trainer" form in frontend</td>
+          <td>POST /trainers</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Assign Trainer to Learner</strong></td>
+          <td>No trainer assignment UI</td>
+          <td>PATCH /learners/:id { trainerId }</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Create Cohorts</strong></td>
+          <td>No cohort management page</td>
+          <td>POST /cohorts</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Assign Learners to Cohort</strong></td>
+          <td>No cohort assignment UI</td>
+          <td>PATCH /cohorts/:id/learners</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>Create Learning Aims &amp; Units</strong></td>
+          <td>Learner sees aims, but no creation form</td>
+          <td>POST /learning-aims + POST /units</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>Set Learner workplace/mentor info</strong></td>
+          <td>Profile page is read-only in current UI</td>
+          <td>PATCH /learners/:id/workplace</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><strong>Set programme start/end dates</strong></td>
+          <td>No date editor in frontend</td>
+          <td>PATCH /learners/:id</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><strong>Create Announcements</strong></td>
+          <td>No admin announcement editor</td>
+          <td>POST /announcements</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td><strong>IQA Module</strong></td>
+          <td>IQA role exists in auth but zero IQA pages built</td>
+          <td>/iqa/* — entire module missing</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td><strong>Seed initial users/roles</strong></td>
+          <td>No onboarding flow yet</td>
+          <td>POST /auth/register or seeder script</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td><strong>Exit Review / Learner Feedback create</strong></td>
+          <td>Create pages exist but no real API connected</td>
+          <td>POST /exit-reviews, POST /feedback</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td><strong>Plan of Activity / Action</strong></td>
+          <td>Shown as card in dashboard, no create form</td>
+          <td>POST /plans</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td><strong>Written Question Forms</strong></td>
+          <td>Listed in Forms &amp; Templates, no form builder</td>
+          <td>POST /written-questions</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td><strong>Learning Activity Templates</strong></td>
+          <td>Listed in Forms &amp; Templates, template pages are shells</td>
+          <td>POST /learning-activity-templates</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="diagram-card">
+    <h3>🏗️ Recommended Backend Build Order</h3>
+    <div class="mermaid">
+flowchart LR
+    P1["Phase 1\n✅ Foundation\n\nAuth Module\nUser Module\nLearner Module\nTrainer Module\nCohort Module\nDB seed script"] --> P2["Phase 2\n📋 Core Data\n\nTasks Module\nEvidence Module\nLearning Aims\nProgress Module\nTimesheets/OTJ"] --> P3["Phase 3\n📅 Scheduling\n\nVisits Module\nProgress Reviews\nCalendar endpoints\nTrainer Stats API"] --> P4["Phase 4\n📊 Analytics\n\nScorecard\nGap Analysis\nLearning Journey\nAggregations"] --> P5["Phase 5\n💬 Communication\n\nMessages Module\nAnnouncements\nResources\nFile Uploads"] --> P6["Phase 6\n🏢 Admin &amp; IQA\n\nAdmin Module\nIQA Module\nForms &amp; Templates\nBilling"]
+    </div>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', fontSize: 13 });
+
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
