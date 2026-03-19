@@ -1,17 +1,17 @@
 /**
  * Learner — System Announcements page
- * Accessible via profile dropdown → System Announcements
+ * Fetches from /notifications (system-type) or falls back gracefully.
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   ArrowBack as ArrowBackIcon,
   CampaignOutlined as AnnouncementIcon,
-  FiberManualRecord as DotIcon,
 } from '@mui/icons-material';
 import LearnerLayout from '@/modules/learner/layout/LearnerLayout';
+import { notificationsService } from '@/services/notifications/notificationsService';
 
 const PageContainer = styled(Box)({
   display: 'flex',
@@ -74,39 +74,44 @@ const AnnouncementIconBox = styled(Box)({
   flexShrink: 0,
 });
 
-const MOCK_ANNOUNCEMENTS = [
-  {
-    id: '1',
-    title: 'Platform Maintenance Scheduled',
-    body: 'The system will be undergoing planned maintenance on Saturday 22 March from 2:00 AM – 4:00 AM GMT.',
-    date: '17 Mar 2026',
-    isNew: true,
-  },
-  {
-    id: '2',
-    title: 'New Feature: Progress Scorecard',
-    body: 'We have launched the new Progress Scorecard section. You can now track your learning milestones in real time.',
-    date: '10 Mar 2026',
-    isNew: true,
-  },
-  {
-    id: '3',
-    title: 'Reminder: Submit OTJ Evidence',
-    body: 'Please ensure you have submitted all Off-The-Job training evidence for Q1 2026 by 31 March.',
-    date: '05 Mar 2026',
-    isNew: false,
-  },
-  {
-    id: '4',
-    title: 'Updated Privacy Policy',
-    body: 'Our privacy policy has been updated. Please review the changes in your account settings.',
-    date: '20 Feb 2026',
-    isNew: false,
-  },
-];
+interface AnnouncementItem {
+  id: string;
+  title: string;
+  body: string;
+  date: string;
+  isNew: boolean;
+}
+
+function mapNotification(n: any): AnnouncementItem {
+  const createdAt = n.createdAt ? new Date(n.createdAt) : new Date();
+  const isNew = !n.isRead && (Date.now() - createdAt.getTime()) < 7 * 24 * 60 * 60 * 1000;
+  return {
+    id: n._id ?? String(Math.random()),
+    title: n.title ?? 'Announcement',
+    body: n.message ?? n.body ?? '',
+    date: createdAt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    isNew,
+  };
+}
 
 const Announcements: React.FC = () => {
   const router = useRouter();
+  const [items, setItems] = useState<AnnouncementItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await notificationsService.getMyNotifications({ page: 1, pageSize: 20 });
+        const list: any[] = Array.isArray(res) ? res : (res as any)?.data ?? [];
+        setItems(list.filter((n: any) => n.type === 'system' || n.type === 'announcement').map(mapNotification));
+      } catch {
+        setItems([]);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
 
   return (
     <LearnerLayout pageTitle="System Announcements">
@@ -119,39 +124,49 @@ const Announcements: React.FC = () => {
         </PageHeaderRow>
 
         <ContentCard>
-          {MOCK_ANNOUNCEMENTS.map((item) => (
-            <AnnouncementRow key={item.id}>
-              <AnnouncementIconBox>
-                <AnnouncementIcon sx={{ fontSize: 20, color: '#7B61FF' }} />
-              </AnnouncementIconBox>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#1C1C1C', fontFamily: "'Inter', sans-serif" }}>
-                    {item.title}
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <CircularProgress size={28} sx={{ color: '#7B61FF' }} />
+            </Box>
+          ) : items.length === 0 ? (
+            <Box sx={{ padding: '40px 20px', textAlign: 'center', color: 'rgba(28,28,28,0.4)', fontSize: '14px', fontFamily: "'Inter', sans-serif" }}>
+              No announcements at this time.
+            </Box>
+          ) : (
+            items.map((item) => (
+              <AnnouncementRow key={item.id}>
+                <AnnouncementIconBox>
+                  <AnnouncementIcon sx={{ fontSize: 20, color: '#7B61FF' }} />
+                </AnnouncementIconBox>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#1C1C1C', fontFamily: "'Inter', sans-serif" }}>
+                      {item.title}
+                    </Typography>
+                    {item.isNew && (
+                      <Box sx={{
+                        backgroundColor: '#7B61FF',
+                        color: '#FFF',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        fontFamily: "'Inter', sans-serif",
+                        borderRadius: '20px',
+                        padding: '1px 8px',
+                      }}>
+                        NEW
+                      </Box>
+                    )}
+                  </Box>
+                  <Typography sx={{ fontSize: '13px', color: 'rgba(28,28,28,0.6)', fontFamily: "'Inter', sans-serif", lineHeight: 1.5 }}>
+                    {item.body}
                   </Typography>
-                  {item.isNew && (
-                    <Box sx={{
-                      backgroundColor: '#7B61FF',
-                      color: '#FFF',
-                      fontSize: '10px',
-                      fontWeight: 600,
-                      fontFamily: "'Inter', sans-serif",
-                      borderRadius: '20px',
-                      padding: '1px 8px',
-                    }}>
-                      NEW
-                    </Box>
-                  )}
+                  <Typography sx={{ fontSize: '11px', color: 'rgba(28,28,28,0.35)', fontFamily: "'Inter', sans-serif", marginTop: '6px' }}>
+                    {item.date}
+                  </Typography>
                 </Box>
-                <Typography sx={{ fontSize: '13px', color: 'rgba(28,28,28,0.6)', fontFamily: "'Inter', sans-serif", lineHeight: 1.5 }}>
-                  {item.body}
-                </Typography>
-                <Typography sx={{ fontSize: '11px', color: 'rgba(28,28,28,0.35)', fontFamily: "'Inter', sans-serif", marginTop: '6px' }}>
-                  {item.date}
-                </Typography>
-              </Box>
-            </AnnouncementRow>
-          ))}
+              </AnnouncementRow>
+            ))
+          )}
         </ContentCard>
       </PageContainer>
     </LearnerLayout>

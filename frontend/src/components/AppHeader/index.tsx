@@ -6,8 +6,9 @@ import {
   ExpandLessOutlined,
   SearchOutlined,
   ChevronRight as ChevronRightIcon,
+  LogoutOutlined,
 } from '@mui/icons-material';
-import { Link as MuiLink } from '@mui/material';
+import { Link as MuiLink, CircularProgress } from '@mui/material';
 import SetStatusModal from '@/components/SetStatusModal';
 import {
   HeaderContainer,
@@ -32,6 +33,7 @@ import {
   ProfileMenuItem,
   ProfileMenuItemLabel,
   ProfileMenuItemArrow,
+  ProfileMenuDivider,
 } from './AppHeader.style';
 import { useAuth } from '@/context/AuthContext';
 
@@ -40,9 +42,11 @@ import { useAuth } from '@/context/AuthContext';
 export interface ProfileMenuItemDef {
   id: string;
   label: string;
-  path: string;
+  path?: string;
   /** Highlights this item with a subtle bg on open (used for "Set Status") */
   defaultHighlight?: boolean;
+  /** Renders item in red — used for destructive actions like Logout */
+  isDanger?: boolean;
 }
 
 export interface AppHeaderProps {
@@ -71,11 +75,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   iconButtons,
 }) => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const [searchValue, setSearchValue]         = useState('');
   const [dropdownOpen, setDropdownOpen]       = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [loggingOut, setLoggingOut]           = useState(false);
   const dropdownRef                           = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -94,15 +99,27 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     setDropdownOpen(false);
   }, [router.pathname]);
 
-  const userName = user?.name || 'John Doe';
-  const userRole = user?.role || 'User';
+  const userName = user
+    ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.name || 'User'
+    : 'User';
+  const userRole = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : 'User';
   const initials = getInitials(userName);
 
-  const handleMenuItemClick = (itemId: string, path: string) => {
+  const handleMenuItemClick = async (itemId: string, path?: string) => {
     setDropdownOpen(false);
     if (itemId === 'set-status') {
       setStatusModalOpen(true);
-    } else {
+    } else if (itemId === 'logout') {
+      setLoggingOut(true);
+      try {
+        await logout();
+      } finally {
+        setLoggingOut(false);
+        router.push('/');
+      }
+    } else if (path) {
       router.push(path);
     }
   };
@@ -151,7 +168,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         <ProfileDropdownWrapper ref={dropdownRef}>
           <UserProfileSection onClick={() => setDropdownOpen((prev) => !prev)}>
             <UserAvatarBox>
-              <HeaderAvatar>{initials}</HeaderAvatar>
+              <HeaderAvatar>
+                {loggingOut
+                  ? <CircularProgress size={16} sx={{ color: '#fff' }} />
+                  : initials}
+              </HeaderAvatar>
               <UserInfo>
                 <UserName>{userName}</UserName>
                 <UserRole>{userRole}</UserRole>
@@ -166,17 +187,25 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 
           {dropdownOpen && (
             <ProfileMenuCard>
-              {profileMenuItems.map((item) => (
-                <ProfileMenuItem
-                  key={item.id}
-                  active={item.defaultHighlight}
-                  onClick={() => handleMenuItemClick(item.id, item.path)}
-                >
-                  <ProfileMenuItemLabel>{item.label}</ProfileMenuItemLabel>
-                  <ProfileMenuItemArrow>
-                    <ChevronRightIcon sx={{ fontSize: '16px' }} />
-                  </ProfileMenuItemArrow>
-                </ProfileMenuItem>
+              {profileMenuItems.map((item, idx) => (
+                <React.Fragment key={item.id}>
+                  {/* Divider before the logout item */}
+                  {item.isDanger && idx > 0 && <ProfileMenuDivider />}
+                  <ProfileMenuItem
+                    active={item.defaultHighlight}
+                    danger={item.isDanger}
+                    onClick={() => handleMenuItemClick(item.id, item.path)}
+                  >
+                    <ProfileMenuItemLabel danger={item.isDanger}>
+                      {item.label}
+                    </ProfileMenuItemLabel>
+                    <ProfileMenuItemArrow>
+                      {item.isDanger
+                        ? <LogoutOutlined sx={{ fontSize: '15px', color: '#D32F2F' }} />
+                        : <ChevronRightIcon sx={{ fontSize: '16px' }} />}
+                    </ProfileMenuItemArrow>
+                  </ProfileMenuItem>
+                </React.Fragment>
               ))}
             </ProfileMenuCard>
           )}

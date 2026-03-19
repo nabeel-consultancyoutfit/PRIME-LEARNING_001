@@ -1,12 +1,4 @@
-export type Role = 'learner' | 'trainer' | 'iqa';
-
-export interface MockUser {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  role: Role;
-}
+export type Role = 'learner' | 'trainer' | 'iqa' | 'admin';
 
 export interface LoginFormValues {
   email: string;

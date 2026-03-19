@@ -1,41 +1,85 @@
 /**
- * Hook for Evidence page state management
+ * Hook for Evidence page state management — uses real backend API.
  */
 
-import { useState } from 'react';
-import { EvidenceState } from './Evidence.interface';
-import { MOCK_EVIDENCE } from './Evidence.data';
+import { useState, useEffect, useCallback } from 'react';
+import { evidenceService, Evidence, EvidenceStatus } from '@/services/evidence/evidenceService';
+
+export interface EvidenceState {
+  evidenceItems: Evidence[];
+  filterShow: string;
+  isLoading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+}
 
 const initialState: EvidenceState = {
-  evidenceItems: MOCK_EVIDENCE,
-  filterShow: 'pending',
+  evidenceItems: [],
+  filterShow: 'all',
+  isLoading: false,
+  error: null,
+  total: 0,
+  page: 1,
 };
 
 export const useEvidence = () => {
   const [state, setState] = useState<EvidenceState>(initialState);
 
+  const fetchEvidence = useCallback(async (filterShow: string, page: number) => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const params: any = { page, pageSize: 20 };
+      if (filterShow !== 'all') params.status = filterShow as EvidenceStatus;
+
+      const res = await evidenceService.getMyEvidence(params);
+      setState((prev) => ({
+        ...prev,
+        evidenceItems: res.data ?? [],
+        total: res.meta?.total ?? 0,
+        isLoading: false,
+      }));
+    } catch (err: any) {
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: err?.message ?? 'Failed to load evidence',
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEvidence(state.filterShow, state.page);
+  }, [state.filterShow, state.page, fetchEvidence]);
+
   const setFilterShow = (value: string) => {
-    setState((prev) => ({ ...prev, filterShow: value }));
+    setState((prev) => ({ ...prev, filterShow: value, page: 1 }));
   };
 
   const handleCreateActivity = () => {
-    // TODO: Navigate to create activity page
-    console.log('Create learning activity');
+    // Navigate to create evidence page or open modal
   };
 
-  const toggleShowcase = (itemId: string) => {
-    setState((prev) => ({
-      ...prev,
-      evidenceItems: prev.evidenceItems.map((item) =>
-        item.id === itemId ? { ...item, addToShowcase: !item.addToShowcase } : item
-      ),
-    }));
+  const handleSubmitEvidence = async (id: string) => {
+    try {
+      await evidenceService.submit(id);
+      fetchEvidence(state.filterShow, state.page);
+    } catch (err: any) {
+      setState((prev) => ({ ...prev, error: err?.message }));
+    }
+  };
+
+  const toggleShowcase = (_itemId: string) => {
+    // Showcase is a local UI toggle; no backend equivalent
+    setState((prev) => ({ ...prev }));
   };
 
   return {
     state,
     setFilterShow,
     handleCreateActivity,
+    handleSubmitEvidence,
     toggleShowcase,
+    refresh: () => fetchEvidence(state.filterShow, state.page),
   };
 };

@@ -9,10 +9,11 @@ interface TrainerHeaderProps {
 }
 
 const TRAINER_PROFILE_MENU_ITEMS: ProfileMenuItemDef[] = [
-  { id: 'set-status',       label: 'Set Status',       path: '/trainer-dashboard',             defaultHighlight: true },
-  { id: 'my-profile',       label: 'My Profile',       path: '/trainer-dashboard' },
-  { id: 'email-preference', label: 'Email preference', path: '/trainer-dashboard' },
+  { id: 'set-status',       label: 'Set Status',       path: '/trainer-dashboard/profile',     defaultHighlight: true },
+  { id: 'my-profile',       label: 'My Profile',       path: '/trainer-dashboard/profile' },
+  { id: 'email-preference', label: 'Email preference', path: '/trainer-dashboard/profile' },
   { id: 'user-guide',       label: 'User Guide',       path: '/trainer-dashboard/help-centre' },
+  { id: 'logout',           label: 'Logout',           isDanger: true },
 ];
 
 const TrainerHeader: React.FC<TrainerHeaderProps> = ({ pageTitle = 'Dashboard' }) => (

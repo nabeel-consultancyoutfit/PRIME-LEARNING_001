@@ -13,12 +13,12 @@
  *   6. Bottom row: [Information & Options panel 280px] | [Evidence/content panel flex-1]
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import LearnerLayout from '@/modules/learner/layout/LearnerLayout';
 import ViewPlanModal from './ViewPlanModal';
+import { tasksService, Task } from '@/services/tasks/tasksService';
 import {
-  MOCK_TASK_DETAILS,
   SECONDARY_METHOD_OPTIONS,
   PRIMARY_METHOD_OPTIONS,
 } from './Tasks.data';
@@ -151,23 +151,77 @@ interface Props {
 
 const TaskDetail: React.FC<Props> = ({ taskId }) => {
   const router = useRouter();
-  const task = MOCK_TASK_DETAILS[taskId];
+
+  // ── Real API state ───────────────────────────────────────────────────────
+  const [task, setTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<InfoTab>('evidence');
-  const [evidenceText, setEvidenceText] = useState(task?.evidence ?? '');
+  const [evidenceText, setEvidenceText] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
-  const [primaryMethod, setPrimaryMethod] = useState(task?.primaryMethod ?? 'Assignment');
-  const [selectedSecondary, setSelectedSecondary] = useState<string[]>(
-    task?.secondaryMethods ?? []
-  );
+  const [primaryMethod, setPrimaryMethod] = useState('Assignment');
+  const [selectedSecondary, setSelectedSecondary] = useState<string[]>([]);
   const [viewPlanOpen, setViewPlanOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  if (!task) {
+  // ── Fetch task from backend ──────────────────────────────────────────────
+  const fetchTask = useCallback(async () => {
+    if (!taskId) return;
+    setIsLoading(true);
+    setApiError(null);
+    try {
+      const data = await tasksService.getById(taskId);
+      setTask(data);
+      setEvidenceText(data.evidence ?? '');
+      setFeedbackText(data.feedbackComments ?? '');
+      setPrimaryMethod(data.primaryMethod ?? 'Assignment');
+      setSelectedSecondary(data.secondaryMethods ?? []);
+    } catch (err: any) {
+      setApiError(err?.message ?? 'Failed to load task');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [taskId]);
+
+  useEffect(() => { fetchTask(); }, [fetchTask]);
+
+  // ── Save handlers ────────────────────────────────────────────────────────
+  const handleSaveEvidence = async () => {
+    if (!task) return;
+    setIsSaving(true);
+    try {
+      await tasksService.saveEvidence(task._id, evidenceText);
+    } finally { setIsSaving(false); }
+  };
+
+  const handleSubmitTask = async () => {
+    if (!task) return;
+    setIsSaving(true);
+    try {
+      const updated = await tasksService.submit(task._id);
+      setTask(updated);
+    } finally { setIsSaving(false); }
+  };
+
+  if (isLoading) {
     return (
       <LearnerLayout pageTitle="Task Detail">
         <DetailPage>
           <div style={{ padding: 40, textAlign: 'center', color: '#888' }}>
-            Task not found.
+            Loading task…
+          </div>
+        </DetailPage>
+      </LearnerLayout>
+    );
+  }
+
+  if (apiError || !task) {
+    return (
+      <LearnerLayout pageTitle="Task Detail">
+        <DetailPage>
+          <div style={{ padding: 40, textAlign: 'center', color: '#888' }}>
+            {apiError ?? 'Task not found.'}
           </div>
         </DetailPage>
       </LearnerLayout>

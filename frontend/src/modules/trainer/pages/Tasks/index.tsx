@@ -2,12 +2,10 @@
  * Trainer — Tasks Page
  * Pixel-perfect to Figma node 2095:158833
  * Reassign Task modal → Figma node 2096:159830
- *
- * Flow: click "Reassign task" button → opens ReassignTask modal overlay
  */
 
-import React, { useState } from 'react';
-import { Box } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, CircularProgress } from '@mui/material';
 import { KeyboardArrowDown, Close, WarningAmberRounded } from '@mui/icons-material';
 import TrainerLayout from '@/modules/trainer/layout/TrainerLayout';
 import {
@@ -28,7 +26,6 @@ import {
   ReassignButton,
   HideButton,
   ActionsCell,
-  // Modal
   ModalOverlay,
   ModalCard,
   ModalHeader,
@@ -45,11 +42,12 @@ import {
   ModalCancelBtn,
   ModalConfirmBtn,
 } from './Tasks.style';
+import { tasksService, Task } from '@/modules/trainer/services/tasks.service';
 
-type TaskStatus = 'In Progress' | 'Complete' | 'Pending' | 'Overdue' | 'Rejected';
+type TaskStatus = 'In Progress' | 'Complete' | 'Pending' | 'Overdue' | 'Rejected' | 'Approved';
 
 interface TaskItem {
-  id: number;
+  id: string;
   dateSet: string;
   taskToLearner: string;
   dateDue: string;
@@ -59,77 +57,93 @@ interface TaskItem {
   learnerName: string;
 }
 
-const MOCK_TASKS: TaskItem[] = [
-  {
-    id: 1,
-    dateSet: '19/12/2024 01:59',
-    taskToLearner: 'Complete your new learning activity Q1: learning acc',
-    dateDue: '13/02/2025 00:00',
-    dateCompleted: '',
-    status: 'In Progress',
-    learnerName: 'John Doe',
-  },
-  {
-    id: 2,
-    dateSet: '19/12/2024 01:59',
-    taskToLearner: 'Please sign your recently prepared Plan Of Activity/action by Rob Bastow',
-    dateDue: '13/02/2025 00:00',
-    dateCompleted: '13/03/2025 00:00',
-    status: 'Complete',
-    learnerName: 'John Doe',
-  },
-  {
-    id: 3,
-    dateSet: '19/12/2024 01:59',
-    taskToLearner: 'Complete your new learning activity Q1: learning acc',
-    dateDue: '13/02/2025 00:00',
-    dateCompleted: '',
-    status: 'Pending',
-    learnerName: 'John Doe',
-  },
-  {
-    id: 4,
-    dateSet: '19/12/2024 01:59',
-    taskToLearner:
-      'You have not recorded any Off-The-Job activity recently. Please record your completed activity.',
-    dateDue: '13/02/2025 00:00',
-    dateCompleted: '',
-    status: 'Overdue',
-    isWarning: true,
-    learnerName: 'John Doe',
-  },
-  {
-    id: 5,
-    dateSet: '19/12/2024 01:59',
-    taskToLearner: 'Complete your new learning activity Q1: learning acc',
-    dateDue: '13/02/2025 00:00',
-    dateCompleted: '',
-    status: 'Rejected',
-    learnerName: 'John Doe',
-  },
+const ASSIGNEE_OPTIONS = [
+  { id: 'trainer', label: 'Reassign to Trainer' },
+  { id: 'learner', label: 'Reassign to Learner' },
 ];
 
-// Reassign modal assignee options (Figma)
-const ASSIGNEE_OPTIONS = [
-  { id: 'trainer', label: 'Bastow, Rob (Trainer)' },
-  { id: 'learner', label: 'Rakker Hassan (Learner)' },
-];
+function formatDateTime(dateStr: string | undefined): string {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr).toLocaleString('en-GB', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function mapTaskStatus(status: string): TaskStatus {
+  switch (status) {
+    case 'pending': return 'Pending';
+    case 'in_progress': return 'In Progress';
+    case 'complete':
+    case 'submitted': return 'Complete';
+    case 'approved': return 'Approved';
+    case 'rejected': return 'Rejected';
+    default: return 'Pending';
+  }
+}
+
+function isOverdue(task: Task): boolean {
+  if (!task.dueDate) return false;
+  const due = new Date(task.dueDate);
+  const now = new Date();
+  return due < now && task.status !== 'approved' && task.status !== 'complete';
+}
+
+function mapTask(t: Task): TaskItem {
+  const learner = (t.learnerId as any) ?? {};
+  const userId = learner.userId ?? {};
+  const first = userId.firstName ?? '';
+  const last = userId.lastName ?? '';
+  const learnerName = first ? `${first} ${last}`.trim() : 'Learner';
+  const overdue = isOverdue(t);
+
+  return {
+    id: t._id,
+    dateSet: formatDateTime(t.createdAt),
+    taskToLearner: t.title,
+    dateDue: formatDateTime(t.dueDate),
+    dateCompleted: t.completedAt ? formatDateTime(t.completedAt) : '',
+    status: overdue ? 'Overdue' : mapTaskStatus(t.status),
+    isWarning: overdue,
+    learnerName,
+  };
+}
 
 const TrainerTasks: React.FC = () => {
-  // ── Filter state ────────────────────────────────────────────────────────────
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [cohort] = useState('Show All');
   const [learner] = useState('Everyone');
   const [period] = useState('Show All');
   const [statusFilter] = useState('Pending task');
-  const [hiddenIds, setHiddenIds] = useState<number[]>([]);
 
-  // ── Reassign modal state ────────────────────────────────────────────────────
   const [reassignOpen, setReassignOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [assigneeId, setAssigneeId] = useState('trainer');
   const [comments, setComments] = useState('');
 
-  const visibleTasks = MOCK_TASKS.filter((t) => !hiddenIds.includes(t.id));
+  const fetchTasks = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await tasksService.getAll({ page: 1, pageSize: 100 });
+      setTasks(data.map(mapTask));
+    } catch {
+      setTasks([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  const visibleTasks = tasks.filter((t) => !hiddenIds.includes(t.id));
   const pendingCount = visibleTasks.filter(
     (t) => t.status === 'Pending' || t.status === 'In Progress'
   ).length;
@@ -147,53 +161,44 @@ const TrainerTasks: React.FC = () => {
   };
 
   const handleReassignSubmit = () => {
-    // In a real app: call API to reassign
     handleModalClose();
   };
 
-  const handleHide = (id: number) => {
+  const handleHide = (id: string) => {
     setHiddenIds((prev) => [...prev, id]);
   };
 
   return (
     <TrainerLayout pageTitle="Task">
       <PageContainer>
-
-        {/* ── Page heading ── */}
         <PageHeader>Tasks</PageHeader>
 
-        {/* ── Filters bar ── */}
         <FiltersBar>
           <FilterLabel>Cohort:</FilterLabel>
           <FilterSelect>
             {cohort}
             <KeyboardArrowDown />
           </FilterSelect>
-
           <FilterLabel>Learner:</FilterLabel>
           <FilterSelect>
             {learner}
             <KeyboardArrowDown />
           </FilterSelect>
-
           <FilterLabel>Period:</FilterLabel>
           <FilterSelect>
             {period}
             <KeyboardArrowDown />
           </FilterSelect>
-
           <FilterLabel>Status:</FilterLabel>
           <FilterSelect>
             {statusFilter}
             <KeyboardArrowDown />
           </FilterSelect>
-
           <PendingBadge>
             There are {pendingCount} pending tasks!
           </PendingBadge>
         </FiltersBar>
 
-        {/* ── Table ── */}
         <TableWrapper>
           <TableHeader>
             <TableHeaderCell>Date Set</TableHeaderCell>
@@ -204,33 +209,11 @@ const TrainerTasks: React.FC = () => {
             <TableHeaderCell>Action</TableHeaderCell>
           </TableHeader>
 
-          {visibleTasks.map((task) => (
-            <TaskRow key={task.id}>
-              <TaskCell>{task.dateSet}</TaskCell>
-
-              {task.isWarning ? (
-                <TaskOverdueCell>{task.taskToLearner}</TaskOverdueCell>
-              ) : (
-                <TaskLinkCell>{task.taskToLearner}</TaskLinkCell>
-              )}
-
-              <TaskCell>{task.dateDue}</TaskCell>
-              <TaskCell>{task.dateCompleted || '—'}</TaskCell>
-
-              <StatusBadge status={task.status}>{task.status}</StatusBadge>
-
-              <ActionsCell>
-                <ReassignButton onClick={() => handleReassignClick(task)}>
-                  Reassign task
-                </ReassignButton>
-                <HideButton onClick={() => handleHide(task.id)}>
-                  Hide
-                </HideButton>
-              </ActionsCell>
-            </TaskRow>
-          ))}
-
-          {visibleTasks.length === 0 && (
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <CircularProgress size={28} sx={{ color: '#7B61FF' }} />
+            </Box>
+          ) : visibleTasks.length === 0 ? (
             <Box sx={{
               padding: '32px 24px',
               textAlign: 'center',
@@ -240,56 +223,57 @@ const TrainerTasks: React.FC = () => {
             }}>
               No tasks to display.
             </Box>
+          ) : (
+            visibleTasks.map((task) => (
+              <TaskRow key={task.id}>
+                <TaskCell>{task.dateSet}</TaskCell>
+                {task.isWarning ? (
+                  <TaskOverdueCell>{task.taskToLearner}</TaskOverdueCell>
+                ) : (
+                  <TaskLinkCell>{task.taskToLearner}</TaskLinkCell>
+                )}
+                <TaskCell>{task.dateDue}</TaskCell>
+                <TaskCell>{task.dateCompleted || '—'}</TaskCell>
+                <StatusBadge status={task.status as any}>{task.status}</StatusBadge>
+                <ActionsCell>
+                  <ReassignButton onClick={() => handleReassignClick(task)}>
+                    Reassign task
+                  </ReassignButton>
+                  <HideButton onClick={() => handleHide(task.id)}>
+                    Hide
+                  </HideButton>
+                </ActionsCell>
+              </TaskRow>
+            ))
           )}
         </TableWrapper>
       </PageContainer>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          Reassign Task Modal  (Figma node 2096:159830)
-          Opens when trainer clicks "Reassign task" on any row
-      ───────────────────────────────────────────────────────────────────── */}
       {reassignOpen && selectedTask && (
         <ModalOverlay onClick={handleModalClose}>
-          {/* Stop click propagation so clicking inside modal doesn't close it */}
           <ModalCard onClick={(e) => e.stopPropagation()}>
-
-            {/* Header */}
             <ModalHeader>
               <ModalTitle>Reassign Task</ModalTitle>
               <ModalCloseBtn onClick={handleModalClose}>
                 <Close sx={{ fontSize: '18px' }} />
               </ModalCloseBtn>
             </ModalHeader>
-
-            {/* Body */}
             <ModalBody>
-
-              {/* Yellow info banner — shows task content */}
               <ModalBanner>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                   <WarningAmberRounded sx={{ fontSize: '16px', color: '#D4A000', mt: '1px', flexShrink: 0 }} />
-                  <Box>
-                    {selectedTask.taskToLearner}
-                  </Box>
+                  <Box>{selectedTask.taskToLearner}</Box>
                 </Box>
               </ModalBanner>
-
-              {/* Explanatory text */}
               <ModalInfoText>
                 You can reassign this task to the following user(s). If you need to reassign
                 this task to a different user then you must contact your Centre Manager.
               </ModalInfoText>
-
-              {/* Radio options */}
               <Box>
                 <ModalLabel>Reassign task to:</ModalLabel>
                 <RadioRow>
                   {ASSIGNEE_OPTIONS.map((opt) => (
-                    <RadioOption
-                      key={opt.id}
-                      onClick={() => setAssigneeId(opt.id)}
-                    >
-                      {/* Custom radio circle */}
+                    <RadioOption key={opt.id} onClick={() => setAssigneeId(opt.id)}>
                       <Box sx={{
                         width: '16px',
                         height: '16px',
@@ -305,8 +289,6 @@ const TrainerTasks: React.FC = () => {
                   ))}
                 </RadioRow>
               </Box>
-
-              {/* Optional comments */}
               <Box>
                 <ModalLabel sx={{ mb: '6px', fontWeight: 400, color: 'rgba(28,28,28,0.7)' }}>
                   Add additional comments or instructions to recipient (optional):
@@ -318,13 +300,10 @@ const TrainerTasks: React.FC = () => {
                 />
               </Box>
             </ModalBody>
-
-            {/* Footer */}
             <ModalFooter>
               <ModalCancelBtn onClick={handleModalClose}>Cancel</ModalCancelBtn>
               <ModalConfirmBtn onClick={handleReassignSubmit}>Reassign Task</ModalConfirmBtn>
             </ModalFooter>
-
           </ModalCard>
         </ModalOverlay>
       )}

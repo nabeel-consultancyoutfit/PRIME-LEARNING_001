@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
 import { LoginFormValues } from './Login.interface';
-import { MOCK_USERS, ROLE_REDIRECT_MAP, LOGIN_VALIDATION_MESSAGES } from './Login.data';
+import { ROLE_REDIRECT_MAP, LOGIN_VALIDATION_MESSAGES } from './Login.data';
 
 const loginValidationSchema = yup.object({
   email: yup
@@ -36,28 +36,23 @@ export const useLogin = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<LoginFormValues> = (data) => {
+  const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setError(null);
     setIsLoading(true);
 
-    const user = MOCK_USERS.find(
-      (u) => u.email === data.email && u.password === data.password
-    );
-
-    if (!user) {
-      setError('Invalid email or password. Try: alice@example.com / bob@example.com / carol@example.com (password: password123)');
+    try {
+      const loggedInUser = await login({ email: data.email, password: data.password });
+      const redirect = ROLE_REDIRECT_MAP[loggedInUser.role] ?? '/learner-dashboard';
+      router.push(redirect);
+    } catch (err: any) {
+      const message =
+        err?.data?.message ||
+        err?.message ||
+        'Invalid email or password. Please try again.';
+      setError(Array.isArray(message) ? message.join(', ') : message);
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    login({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    });
-
-    router.push(ROLE_REDIRECT_MAP[user.role]);
   };
 
   const toggleShowPassword = () => {

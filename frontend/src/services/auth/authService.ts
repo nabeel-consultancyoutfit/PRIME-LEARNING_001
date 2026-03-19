@@ -1,92 +1,75 @@
 /**
- * Authentication service
+ * Authentication service — wraps the real API client.
+ * Actual token management is handled by AuthContext; this file
+ * is kept for backward-compatibility and standalone usage.
  */
 
-import { apiClient } from '@/services/api';
-import {
-  User,
-  LoginPayload,
-  RegisterPayload,
-  AuthResponse,
-} from '@/types/auth';
+import { apiClient, saveTokens, clearTokens } from '@/services/api';
 
-const AUTH_ENDPOINTS = {
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  LOGOUT: '/auth/logout',
-  REFRESH: '/auth/refresh',
-  ME: '/auth/me',
-};
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    avatar?: string;
+  };
+}
 
-/**
- * Login user
- */
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+}
+
+const unwrap = (res: any): any => (res && 'data' in res ? res.data : res);
+
 export const login = async (payload: LoginPayload): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>(
-    AUTH_ENDPOINTS.LOGIN,
-    payload
-  );
-
-  // Store tokens in localStorage
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-  }
-
+  const response = unwrap(await apiClient.post<any>('/auth/login', payload));
+  saveTokens(response.accessToken, response.refreshToken);
   return response;
 };
 
-/**
- * Register user
- */
 export const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>(
-    AUTH_ENDPOINTS.REGISTER,
-    payload
-  );
-
-  // Store tokens in localStorage
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-  }
-
+  const response = unwrap(await apiClient.post<any>('/auth/register', payload));
+  saveTokens(response.accessToken, response.refreshToken);
   return response;
 };
 
-/**
- * Logout user
- */
 export const logout = async (): Promise<void> => {
   try {
-    await apiClient.post(AUTH_ENDPOINTS.LOGOUT);
+    await apiClient.post('/auth/logout');
   } finally {
-    // Clear tokens from localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-    }
+    clearTokens();
   }
 };
 
-/**
- * Refresh access token
- */
-export const refreshToken = async (): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>(AUTH_ENDPOINTS.REFRESH);
-
-  // Update tokens in localStorage
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-  }
-
+export const refreshAccessToken = async (): Promise<AuthResponse> => {
+  const rt = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+  const response = unwrap(
+    await apiClient.post<any>('/auth/refresh', { refreshToken: rt }),
+  );
+  saveTokens(response.accessToken, response.refreshToken);
   return response;
 };
 
-/**
- * Get current user
- */
-export const getCurrentUser = async (): Promise<User> => {
-  return apiClient.get<User>(AUTH_ENDPOINTS.ME);
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> => {
+  await apiClient.post('/auth/change-password', { currentPassword, newPassword });
+};
+
+export const getMe = async (): Promise<AuthResponse['user']> => {
+  return unwrap(await apiClient.get<any>('/users/me'));
 };

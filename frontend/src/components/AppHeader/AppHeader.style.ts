@@ -209,7 +209,7 @@ export const ProfileMenuCard = styled(Box)({
   },
 });
 
-export const ProfileMenuItem = styled(Box)<{ active?: boolean }>(({ active }) => ({
+export const ProfileMenuItem = styled(Box)<{ active?: boolean; danger?: boolean }>(({ active, danger }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -218,18 +218,20 @@ export const ProfileMenuItem = styled(Box)<{ active?: boolean }>(({ active }) =>
   cursor: 'pointer',
   backgroundColor: active ? 'rgba(28,28,28,0.05)' : 'transparent',
   transition: 'background-color 0.12s ease',
-  '&:hover': { backgroundColor: 'rgba(28,28,28,0.06)' },
+  '&:hover': {
+    backgroundColor: danger ? 'rgba(211,47,47,0.07)' : 'rgba(28,28,28,0.06)',
+  },
 }));
 
-export const ProfileMenuItemLabel = styled(Box)({
+export const ProfileMenuItemLabel = styled(Box)<{ danger?: boolean }>(({ danger }) => ({
   fontSize: '14px',
-  fontWeight: 400,
-  color: '#1C1C1C',
+  fontWeight: danger ? 500 : 400,
+  color: danger ? '#D32F2F' : '#1C1C1C',
   fontFamily: "'Inter', sans-serif",
   lineHeight: '20px',
   whiteSpace: 'nowrap',
   letterSpacing: 0,
-});
+}));
 
 export const ProfileMenuItemArrow = styled(Box)({
   display: 'flex',
@@ -238,4 +240,10 @@ export const ProfileMenuItemArrow = styled(Box)({
   flexShrink: 0,
   color: 'rgba(28,28,28,0.4)',
   fontSize: '14px',
+});
+
+export const ProfileMenuDivider = styled(Box)({
+  height: '1px',
+  backgroundColor: 'rgba(28,28,28,0.08)',
+  margin: '4px 0',
 });

@@ -1,7 +1,12 @@
 /**
- * Trainer Messages Mock Service
- * Pixel-perfect to Figma node 40000068:36425
+ * Trainer Messages Service — wraps the real backend /messages API.
  */
+
+import {
+  messagesService as coreMessagesService,
+  Conversation as CoreConversation,
+  Message as CoreMessage,
+} from '@/services/messages/messagesService';
 
 export interface Message {
   id: string;
@@ -29,173 +34,109 @@ export interface Conversation {
   messages: Message[];
 }
 
-const MOCK_CONVERSATIONS: Conversation[] = [
-  {
-    id: '1',
-    learnerId: '4',
-    learnerName: 'Marcus Taylor',
-    learnerInitials: 'MT',
-    avatarColor: '#4A90D9',
-    status: 'online',
-    lastSeen: 'Active now',
-    programme: 'Customer Service Specialist L3',
-    lastMessage: 'Hi, can we reschedule my review meeting?',
-    lastMessageTime: '2h ago',
-    unreadCount: 3,
-    isResolved: false,
-    messages: [
-      {
-        id: 'm1',
-        content: 'Hi Sarah, I wanted to ask about the upcoming progress review.',
-        senderId: '4',
-        senderName: 'Marcus Taylor',
-        senderInitials: 'MT',
-        timestamp: '09:00',
-        isFromTrainer: false,
-      },
-      {
-        id: 'm2',
-        content: 'Of course Marcus! Your review is scheduled for 17th March at 2pm. Does that still work for you?',
-        senderId: 'trainer',
-        senderName: 'Sarah Thompson',
-        senderInitials: 'ST',
-        timestamp: '09:15',
-        isFromTrainer: true,
-      },
-      {
-        id: 'm3',
-        content: 'Hi, can we reschedule my review meeting? I have a conflict at work that day.',
-        senderId: '4',
-        senderName: 'Marcus Taylor',
-        senderInitials: 'MT',
-        timestamp: '14:00',
-        isFromTrainer: false,
-      },
-    ],
-  },
-  {
-    id: '2',
-    learnerId: '1',
-    learnerName: 'James Wilson',
-    learnerInitials: 'JW',
-    avatarColor: '#7B61FF',
-    status: 'offline',
-    lastSeen: 'Last seen 3h ago',
-    programme: 'Team Leader / Supervisor L3',
-    lastMessage: 'Thank you for the feedback on my journal entry!',
-    lastMessageTime: 'Yesterday',
-    unreadCount: 0,
-    isResolved: true,
-    messages: [
-      {
-        id: 'm1',
-        content: "I've just reviewed your reflective account. Great work, James. I especially liked your analysis of the conflict resolution scenario.",
-        senderId: 'trainer',
-        senderName: 'Sarah Thompson',
-        senderInitials: 'ST',
-        timestamp: '15:30',
-        isFromTrainer: true,
-      },
-      {
-        id: 'm2',
-        content: "Thank you for the feedback on my journal entry! I'll work on expanding the section about outcomes.",
-        senderId: '1',
-        senderName: 'James Wilson',
-        senderInitials: 'JW',
-        timestamp: '16:45',
-        isFromTrainer: false,
-      },
-    ],
-  },
-  {
-    id: '3',
-    learnerId: '3',
-    learnerName: 'Olivia Brown',
-    learnerInitials: 'OB',
-    avatarColor: '#F5A623',
-    status: 'busy',
-    lastSeen: 'Last seen 1h ago',
-    programme: 'Retail Manager L4',
-    lastMessage: 'I will try to submit the overdue task by end of week.',
-    lastMessageTime: '2 days ago',
-    unreadCount: 1,
-    isResolved: false,
-    messages: [
-      {
-        id: 'm1',
-        content: 'Olivia, I noticed your Retail Operations report is now overdue. Is everything okay?',
-        senderId: 'trainer',
-        senderName: 'Sarah Thompson',
-        senderInitials: 'ST',
-        timestamp: '10:00',
-        isFromTrainer: true,
-      },
-      {
-        id: 'm2',
-        content: "Sorry about that. It's been a very busy month at the store. I will try to submit the overdue task by end of week.",
-        senderId: '3',
-        senderName: 'Olivia Brown',
-        senderInitials: 'OB',
-        timestamp: '11:30',
-        isFromTrainer: false,
-      },
-    ],
-  },
-  {
-    id: '4',
-    learnerId: '5',
-    learnerName: 'Priya Patel',
-    learnerInitials: 'PP',
-    avatarColor: '#F44336',
-    status: 'online',
-    lastSeen: 'Active now',
-    programme: 'Accounting / Finance L3',
-    lastMessage: 'See you at the EPA prep session!',
-    lastMessageTime: '3 days ago',
-    unreadCount: 0,
-    isResolved: true,
-    messages: [
-      {
-        id: 'm1',
-        content: 'Hi Priya, you are really progressing well. I would like to start preparing you for EPA. When are you free for a planning session?',
-        senderId: 'trainer',
-        senderName: 'Sarah Thompson',
-        senderInitials: 'ST',
-        timestamp: '09:00',
-        isFromTrainer: true,
-      },
-      {
-        id: 'm2',
-        content: 'That is great news! I am free Thursday afternoon or Friday morning.',
-        senderId: '5',
-        senderName: 'Priya Patel',
-        senderInitials: 'PP',
-        timestamp: '09:30',
-        isFromTrainer: false,
-      },
-      {
-        id: 'm3',
-        content: "Perfect — let's say Thursday at 2pm. See you at the EPA prep session!",
-        senderId: 'trainer',
-        senderName: 'Sarah Thompson',
-        senderInitials: 'ST',
-        timestamp: '09:45',
-        isFromTrainer: true,
-      },
-    ],
-  },
-];
+const AVATAR_COLORS = ['#7B61FF', '#4CAF50', '#F5A623', '#4A90D9', '#F44336', '#00BCD4'];
 
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0] ?? '')
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function formatRelativeTime(dateStr: string | undefined): string {
+  if (!dateStr) return '';
+  try {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days === 1) return 'Yesterday';
+    return `${days} days ago`;
+  } catch {
+    return '';
+  }
+}
+
+function mapCoreMessage(msg: CoreMessage, currentUserId?: string): Message {
+  const sender = msg.senderId as any;
+  const senderId = sender?._id ?? sender ?? '';
+  const firstName = sender?.firstName ?? '';
+  const lastName = sender?.lastName ?? '';
+  const senderName = firstName ? `${firstName} ${lastName}`.trim() : 'Unknown';
+  return {
+    id: msg._id,
+    content: msg.content,
+    senderId,
+    senderName,
+    senderInitials: getInitials(senderName),
+    timestamp: msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+    isFromTrainer: currentUserId ? senderId === currentUserId : false,
+  };
+}
+
+function mapCoreConversation(conv: CoreConversation, idx: number): Conversation {
+  const participants = (conv.participants ?? []) as any[];
+  // The "other" participant from the trainer's perspective is the learner
+  const learnerParticipant = participants.find((p) => {
+    const role = p.role ?? p?.userId?.role;
+    return role === 'learner';
+  }) ?? participants[0] ?? {};
+
+  const firstName = learnerParticipant.firstName ?? learnerParticipant?.userId?.firstName ?? 'Learner';
+  const lastName = learnerParticipant.lastName ?? learnerParticipant?.userId?.lastName ?? '';
+  const learnerName = `${firstName} ${lastName}`.trim();
+  const learnerId = learnerParticipant._id ?? learnerParticipant?.userId?._id ?? '';
+
+  const lastMsg = conv.lastMessage as any;
+  const lastMessageContent = typeof lastMsg === 'string' ? lastMsg : lastMsg?.content ?? '';
+  const lastMessageTime = formatRelativeTime(conv.updatedAt);
+
+  return {
+    id: conv._id,
+    learnerId,
+    learnerName,
+    learnerInitials: getInitials(learnerName),
+    avatarColor: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+    status: 'offline',
+    lastSeen: conv.updatedAt ? `Last seen ${formatRelativeTime(conv.updatedAt)}` : '',
+    programme: '—',
+    lastMessage: lastMessageContent,
+    lastMessageTime,
+    unreadCount: conv.unreadCount ?? 0,
+    isResolved: false,
+    messages: [],
+  };
+}
 
 export const messagesService = {
   async getConversations(): Promise<Conversation[]> {
-    await delay(400);
-    return [...MOCK_CONVERSATIONS];
+    const data = await coreMessagesService.getConversations();
+    const list: CoreConversation[] = Array.isArray(data) ? data : (data as any)?.data ?? [];
+    return list.map((c, i) => mapCoreConversation(c, i));
   },
 
   async getConversation(id: string): Promise<Conversation | undefined> {
-    await delay(300);
-    return MOCK_CONVERSATIONS.find((c) => c.id === id);
+    const all = await messagesService.getConversations();
+    return all.find((c) => c.id === id);
+  },
+
+  async getMessages(conversationId: string, currentUserId?: string): Promise<Message[]> {
+    const res = await coreMessagesService.getMessages(conversationId, { page: 1, pageSize: 50 });
+    const msgs: CoreMessage[] = res?.data ?? [];
+    return [...msgs].reverse().map((m) => mapCoreMessage(m, currentUserId));
+  },
+
+  async sendMessage(conversationId: string, content: string, currentUserId?: string): Promise<Message> {
+    const msg = await coreMessagesService.sendMessage(conversationId, content);
+    return mapCoreMessage(msg, currentUserId);
+  },
+
+  async startConversation(userId: string): Promise<Conversation> {
+    const conv = await coreMessagesService.startConversation(userId);
+    return mapCoreConversation(conv, 0);
   },
 };

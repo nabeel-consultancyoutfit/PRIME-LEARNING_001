@@ -15,6 +15,7 @@ const LEARNER_PROFILE_MENU_ITEMS: ProfileMenuItemDef[] = [
   { id: 'my-activity',          label: 'My Activity',          path: '/learner-dashboard/activity' },
   { id: 'user-guide',           label: 'User Guide',           path: '/learner-dashboard/help-centre' },
   { id: 'system-announcements', label: 'System Announcements', path: '/learner-dashboard/announcements' },
+  { id: 'logout',               label: 'Logout',               isDanger: true },
 ];
 
 const Header: React.FC<HeaderProps> = ({ pageTitle = 'Dashboard' }) => (

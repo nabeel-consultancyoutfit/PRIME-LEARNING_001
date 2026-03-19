@@ -1,7 +1,9 @@
 /**
- * Trainer Dashboard Mock Service
- * Simulates async API responses with realistic data shapes
+ * Trainer Dashboard Service — wraps the real backend /dashboard API.
  */
+
+import { dashboardService as coreDashboardService, TrainerDashboard } from '@/services/dashboard/dashboardService';
+import { notificationsService } from '@/services/notifications/notificationsService';
 
 export interface DashboardStats {
   totalLearners: number;
@@ -20,146 +22,63 @@ export interface LearnerActivity {
   avatarColor: string;
 }
 
-export interface UpcomingSession {
-  id: string;
-  title: string;
-  learnerName: string;
-  date: string;
-  time: string;
-  type: 'Review' | 'Workshop' | 'Assessment' | 'Check-in';
-}
-
 export interface CohortProgress {
   label: string;
   percentage: number;
   color: string;
 }
 
-const MOCK_STATS: DashboardStats = {
-  totalLearners: 14,
-  activeTasks: 23,
-  pendingReviews: 7,
-  unreadMessages: 4,
-};
+function getInitials(first: string, last: string): string {
+  return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase();
+}
 
-const MOCK_ACTIVITIES: LearnerActivity[] = [
-  {
-    id: '1',
-    learnerName: 'James Wilson',
-    learnerInitials: 'JW',
-    action: 'Submitted a Learning Journal entry',
-    module: 'Customer Service Excellence',
-    timestamp: '10 minutes ago',
-    avatarColor: '#7B61FF',
-  },
-  {
-    id: '2',
-    learnerName: 'Emma Clarke',
-    learnerInitials: 'EC',
-    action: 'Completed a task',
-    module: 'Team Leadership Module 3',
-    timestamp: '32 minutes ago',
-    avatarColor: '#4CAF50',
-  },
-  {
-    id: '3',
-    learnerName: 'Olivia Brown',
-    learnerInitials: 'OB',
-    action: 'Uploaded evidence',
-    module: 'Health & Safety Unit 2',
-    timestamp: '1 hour ago',
-    avatarColor: '#F5A623',
-  },
-  {
-    id: '4',
-    learnerName: 'Marcus Taylor',
-    learnerInitials: 'MT',
-    action: 'Sent a message',
-    module: 'General Enquiry',
-    timestamp: '2 hours ago',
-    avatarColor: '#4A90D9',
-  },
-  {
-    id: '5',
-    learnerName: 'Priya Patel',
-    learnerInitials: 'PP',
-    action: 'Completed scorecard assessment',
-    module: 'End Point Assessment Prep',
-    timestamp: '3 hours ago',
-    avatarColor: '#F44336',
-  },
-  {
-    id: '6',
-    learnerName: 'Daniel Hughes',
-    learnerInitials: 'DH',
-    action: 'Started a new task',
-    module: 'Communication Skills',
-    timestamp: '5 hours ago',
-    avatarColor: '#00BCD4',
-  },
-];
-
-const MOCK_SESSIONS: UpcomingSession[] = [
-  {
-    id: '1',
-    title: 'Progress Review',
-    learnerName: 'James Wilson',
-    date: 'Today',
-    time: '2:00 PM',
-    type: 'Review',
-  },
-  {
-    id: '2',
-    title: 'EPA Preparation Workshop',
-    learnerName: 'Group Session (4 learners)',
-    date: 'Tomorrow',
-    time: '10:00 AM',
-    type: 'Workshop',
-  },
-  {
-    id: '3',
-    title: 'Mid-Programme Assessment',
-    learnerName: 'Emma Clarke',
-    date: '19 Mar',
-    time: '1:30 PM',
-    type: 'Assessment',
-  },
-  {
-    id: '4',
-    title: 'Monthly Check-in',
-    learnerName: 'Priya Patel',
-    date: '20 Mar',
-    time: '11:00 AM',
-    type: 'Check-in',
-  },
-];
-
-const MOCK_COHORT_PROGRESS: CohortProgress[] = [
-  { label: 'On Track', percentage: 57, color: '#4CAF50' },
-  { label: 'Behind', percentage: 29, color: '#FF9800' },
-  { label: 'At Risk', percentage: 14, color: '#F44336' },
-];
-
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+const AVATAR_COLORS = ['#7B61FF', '#4CAF50', '#F5A623', '#4A90D9', '#F44336', '#00BCD4'];
 
 export const dashboardService = {
   async getStats(): Promise<DashboardStats> {
-    await delay(300);
-    return { ...MOCK_STATS };
+    const data: TrainerDashboard = await coreDashboardService.getTrainerDashboard();
+    return {
+      totalLearners: data.learnerCount ?? 0,
+      activeTasks: (data.recentActivity ?? []).length,
+      pendingReviews: data.pendingReviews ?? 0,
+      unreadMessages: 0, // could fetch from notifications
+    };
   },
 
   async getRecentActivity(): Promise<LearnerActivity[]> {
-    await delay(400);
-    return [...MOCK_ACTIVITIES];
-  },
-
-  async getUpcomingSessions(): Promise<UpcomingSession[]> {
-    await delay(350);
-    return [...MOCK_SESSIONS];
+    const data: TrainerDashboard = await coreDashboardService.getTrainerDashboard();
+    return (data.recentActivity ?? []).map((item: any, idx: number) => {
+      const learner = item.learnerId ?? {};
+      const first = learner.firstName ?? 'Learner';
+      const last = learner.lastName ?? '';
+      return {
+        id: item._id ?? String(idx),
+        learnerName: `${first} ${last}`.trim(),
+        learnerInitials: getInitials(first, last),
+        action: `Status updated to: ${item.status}`,
+        module: item.title ?? 'Task',
+        timestamp: item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '',
+        avatarColor: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+      };
+    });
   },
 
   async getCohortProgress(): Promise<CohortProgress[]> {
-    await delay(300);
-    return [...MOCK_COHORT_PROGRESS];
+    const data: TrainerDashboard = await coreDashboardService.getTrainerDashboard();
+    const overview = data.learnerProgressOverview ?? [];
+    const total = overview.length || 1;
+    const onTrack = overview.filter((l) => l.overallPercentage >= 60).length;
+    const behind = overview.filter((l) => l.overallPercentage >= 30 && l.overallPercentage < 60).length;
+    const atRisk = overview.filter((l) => l.overallPercentage < 30).length;
+    return [
+      { label: 'On Track', percentage: Math.round((onTrack / total) * 100), color: '#4CAF50' },
+      { label: 'Behind', percentage: Math.round((behind / total) * 100), color: '#FF9800' },
+      { label: 'At Risk', percentage: Math.round((atRisk / total) * 100), color: '#F44336' },
+    ];
+  },
+
+  async getUpcomingSessions() {
+    // Sessions/calendar not yet in backend — return empty for now
+    return [];
   },
 };
